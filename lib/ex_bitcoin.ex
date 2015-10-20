@@ -1,0 +1,2 @@
+defmodule ExBitcoin do
+end
