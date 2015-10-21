@@ -1,12 +1,8 @@
 defmodule ExBitcoinTest do
-  use ExUnit.Case
+  use ExBitcoin.DefaultCase
   doctest ExBitcoin
 
-  test "the truth" do
-    {:ok, pid} = 
-      GenServer.start_link(ExBitcoin, 
-                           %ExBitcoin.Config{hostname: "localhost", port: 18332, user: "bitcoinrpc", password: "changeme"})
-
+  test "getbalance", %{btc: pid} do
     assert is_integer(ExBitcoin.getbalance!(pid))
   end
 
