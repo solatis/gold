@@ -3,6 +3,11 @@ defmodule ExBitcoinTest do
   doctest ExBitcoin
 
   test "the truth" do
-    assert 1 + 1 == 2
+    {:ok, pid} = 
+      GenServer.start_link(ExBitcoin, 
+                           %ExBitcoin.Config{hostname: "localhost", port: 18332, user: "bitcoinrpc", password: "changeme"})
+
+    assert is_integer(ExBitcoin.getbalance!(pid))
   end
+
 end
