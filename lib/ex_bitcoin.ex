@@ -25,8 +25,35 @@ defmodule ExBitcoin do
         {:ok, btc_to_satoshi(balance)}
       otherwise -> 
         otherwise
-    end
-        
+    end        
+  end
+
+
+  def getnewaddress!(pid) do
+    {:ok, address} = getnewaddress(pid)
+    address
+  end
+
+  def getnewaddress(pid) do
+    GenServer.call(pid, :getnewaddress)
+  end
+
+  def getnewaddress!(pid, account) do
+    {:ok, address} = getnewaddress(pid, account)
+    address
+  end
+
+  def getnewaddress(pid, account) do
+    GenServer.call(pid, {:getnewaddress, [account]})
+  end
+
+  def getaccount!(pid, address) do
+    {:ok, account} = getaccount(pid, address)
+    account
+  end
+
+  def getaccount(pid, address) do
+    GenServer.call(pid, {:getaccount, [address]})
   end
 
   ##
@@ -37,7 +64,6 @@ defmodule ExBitcoin do
   end
 
   def handle_call({request, params}, _from, config) when is_atom(request) and is_list(params) do
-    Logger.debug "handling call, request = #{inspect request}, params = #{inspect params}"
     handle_rpc_request(request, params, config)
   end
 
@@ -53,6 +79,8 @@ defmodule ExBitcoin do
                 "id": 1}
 
     headers = ["Authorization": "Basic " <> Base.encode64(user <> ":" <> password)]
+
+    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
 
     case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers) do
       {:ok, %{status_code: 200, body: body}} -> 
