@@ -40,7 +40,6 @@ defmodule Gold do
     account
   end
 
-
   def listtransactions(pid), do: listtransactions(pid, "")
   def listtransactions!(pid), do: listtransactions!(pid, "")
   def listtransactions(pid, account), do: listtransactions(pid, account, 10)
@@ -112,7 +111,10 @@ defmodule Gold do
     # Now construct a decimal
     %Decimal{sign: 1, coef: satoshi, exp: -8}
   end
-  
+
+  @doc """
+  Fallback implementation for when a non-number is provided.
+  """
   def btc_to_decimal(nil), do: nil
   
 end
