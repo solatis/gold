@@ -2,6 +2,7 @@ defmodule Gold.Transaction do
 
   defstruct [:account, 
              :address, 
+             :category,
              :amount, 
              :vout, 
              :fee, 
@@ -11,13 +12,14 @@ defmodule Gold.Transaction do
              :txid,
              :time,
              :timereceived,
-             :comment]
-
+             :comment,
+             :otheraccount]
 
   def from_json(tx) do    
     %Gold.Transaction{
       account:       Map.fetch!(tx, "account"), 
       address:       Map.fetch!(tx, "address"),
+      category:      String.to_atom(Map.fetch!(tx, "category")),                       
       amount:        Gold.btc_to_decimal(Map.fetch!(tx, "amount")),
       vout:          Map.fetch!(tx, "vout"),
       fee:           Gold.btc_to_decimal(Map.get(tx, "fee", nil)),
@@ -30,6 +32,7 @@ defmodule Gold.Transaction do
       time:          Map.fetch!(tx, "time"),
       timereceived:  Map.fetch!(tx, "timereceived"),
       comment:       Map.get(tx, "comment", nil),
+      otheraccount:  Map.get(tx, "otheraccount", nil)
 
     }
   end

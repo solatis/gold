@@ -28,12 +28,11 @@ defmodule Gold do
   end
 
   def getnewaddress!(pid) do
-    {:ok, address} = getnewaddress(pid)
-    address
+    getnewaddress!(pid, "")
   end
 
   def getnewaddress(pid) do
-    GenServer.call(pid, :getnewaddress)
+    getnewaddress(pid, "")
   end
 
   def getnewaddress!(pid, account) do
@@ -55,12 +54,36 @@ defmodule Gold do
   end
 
   def listtransactions!(pid) do
-    {:ok, transactions} = listtransactions(pid)
-    transactions
+    listtransactions!(pid, "")
   end
 
   def listtransactions(pid) do
-    case GenServer.call(pid, :listtransactions) do
+    listtransactions(pid, "")
+  end
+
+  def listtransactions!(pid, account) do
+    listtransactions!(pid, account, 10)
+  end
+
+  def listtransactions(pid, account) do
+    listtransactions(pid, account, 10)
+  end
+
+  def listtransactions!(pid, account, limit) do
+    listtransactions!(pid, account, limit, 0)
+  end
+
+  def listtransactions(pid, account, limit) do
+    listtransactions(pid, account, limit, 0)
+  end
+
+  def listtransactions!(pid, account, limit, offset) do
+    {:ok, transactions} = listtransactions(pid, account, limit, offset)
+    transactions
+  end
+
+  def listtransactions(pid, account, limit, offset) do
+    case GenServer.call(pid, {:listtransactions, [account, limit, offset]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
       otherwise -> 
