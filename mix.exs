@@ -27,7 +27,8 @@ defmodule Gold.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.7"},
-     {:poison, "~> 1.5"}]
+    [{:decimal,   "~> 1.1"},
+     {:httpoison, "~> 0.7"},
+     {:poison,    "~> 1.5"}]
   end
 end

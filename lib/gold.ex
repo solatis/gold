@@ -5,8 +5,6 @@ defmodule Gold do
 
   alias Gold.Config
 
-  @satoshi_per_btc 100000000
-
   ##
   # Client-side
   ##
@@ -22,7 +20,7 @@ defmodule Gold do
   def getbalance(pid) do
     case GenServer.call(pid, :getbalance) do
       {:ok, balance} -> 
-        {:ok, btc_to_satoshi(balance)}
+        {:ok, btc_to_decimal(balance)}
       otherwise -> 
         otherwise
     end        
@@ -97,19 +95,16 @@ defmodule Gold do
   end
 
   @doc """
-  Converts a float BTC amount to an integer Satoshi amount without loss of
-  precision.
+  Converts a float BTC amount to an Decimal.
   """
-  def btc_to_satoshi(btc) do
-    round(btc * @satoshi_per_btc)
-  end
+  def btc_to_decimal(btc) do
+    satoshi_per_btc = :math.pow(10, 8)
 
-  @doc """
-  Converts an integer Satoshi amount to a float BTC amount. Loss of precision
-  might occur.
-  """
-  def satoshi_to_btc(satoshi) do
-    satoshi / @satoshi_per_btc
+    # Convert the bitcoins to integer to avoid any precision loss
+    satoshi = round(btc * satoshi_per_btc)
+
+    # Now construct a decimal
+    %Decimal{sign: 1, coef: satoshi, exp: -8}
   end
   
 end

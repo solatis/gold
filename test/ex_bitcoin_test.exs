@@ -3,7 +3,7 @@ defmodule GoldTest do
   doctest Gold
 
   test "getbalance", %{btc: pid} do
-    assert is_integer(Gold.getbalance!(pid))
+    assert Decimal.decimal?(Gold.getbalance!(pid))
   end
 
   test "getnewaddress", %{btc: pid} do
