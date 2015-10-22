@@ -167,6 +167,7 @@ defmodule Gold do
     # Now construct a decimal
     %Decimal{sign: 1, coef: satoshi, exp: -8}
   end
+
   def btc_to_decimal(nil), do: nil
   
 end
