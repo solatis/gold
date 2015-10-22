@@ -24,5 +24,12 @@ defmodule GoldTest do
     assert account == "foo_account"
   end
 
+  test "listtransactions", %{btc: pid} do
+    transactions = Gold.listtransactions!(pid)
+
+    IO.puts "transactions = #{inspect transactions}"
+    
+    assert is_list(transactions)
+  end
 
 end

@@ -4,6 +4,7 @@ defmodule Gold do
   require Logger
 
   alias Gold.Config
+  alias Gold.Transaction
 
   ##
   # Client-side
@@ -51,6 +52,20 @@ defmodule Gold do
 
   def getaccount(pid, address) do
     GenServer.call(pid, {:getaccount, [address]})
+  end
+
+  def listtransactions!(pid) do
+    {:ok, transactions} = listtransactions(pid)
+    transactions
+  end
+
+  def listtransactions(pid) do
+    case GenServer.call(pid, :listtransactions) do
+      {:ok, transactions} ->
+        {:ok, Enum.map(transactions, &Transaction.from_json/1)}
+      otherwise -> 
+        otherwise
+    end        
   end
 
   ##
@@ -105,6 +120,10 @@ defmodule Gold do
 
     # Now construct a decimal
     %Decimal{sign: 1, coef: satoshi, exp: -8}
+  end
+  
+  def btc_to_decimal(nil) do
+    nil
   end
   
 end
