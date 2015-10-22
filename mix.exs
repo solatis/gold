@@ -1,8 +1,8 @@
-defmodule ExBitcoin.Mixfile do
+defmodule Gold.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :ex_bitcoin,
+    [app: :gold,
      version: "0.1.0",
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,

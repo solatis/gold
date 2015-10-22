@@ -1,25 +1,25 @@
-defmodule ExBitcoinTest do
-  use ExBitcoin.DefaultCase
-  doctest ExBitcoin
+defmodule GoldTest do
+  use Gold.DefaultCase
+  doctest Gold
 
   test "getbalance", %{btc: pid} do
-    assert is_integer(ExBitcoin.getbalance!(pid))
+    assert is_integer(Gold.getbalance!(pid))
   end
 
   test "getnewaddress", %{btc: pid} do
-    address = ExBitcoin.getnewaddress!(pid)
+    address = Gold.getnewaddress!(pid)
     
     assert String.length(address) >= 26
     assert String.length(address) <= 34
   end
 
   test "getnewaddress w/ account", %{btc: pid} do
-    address = ExBitcoin.getnewaddress!(pid, "foo_account")
+    address = Gold.getnewaddress!(pid, "foo_account")
     
     assert String.length(address) >= 26
     assert String.length(address) <= 34
 
-    account = ExBitcoin.getaccount!(pid, address)
+    account = Gold.getaccount!(pid, address)
     
     assert account == "foo_account"
   end

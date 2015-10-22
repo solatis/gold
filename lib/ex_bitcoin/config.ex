@@ -1,4 +1,4 @@
-defmodule ExBitcoin.Config do
+defmodule Gold.Config do
 
   defstruct hostname: "localhost", 
             port: 8332, 

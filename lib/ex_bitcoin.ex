@@ -1,9 +1,9 @@
-defmodule ExBitcoin do
+defmodule Gold do
   use GenServer
 
   require Logger
 
-  alias ExBitcoin.Config
+  alias Gold.Config
 
   @satoshi_per_btc 100000000
 

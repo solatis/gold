@@ -1,4 +1,4 @@
-defmodule ExBitcoin.Api do
+defmodule Gold.Api do
   use GenServer
 
   require Logger
