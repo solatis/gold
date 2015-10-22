@@ -9,9 +9,7 @@ defmodule Gold do
   ##
   # Client-side
   ##
-  def start_link(config) do
-    GenServer.start_link(__MODULE__, config)
-  end
+  def start_link(config), do: GenServer.start_link(__MODULE__, config)
 
   def getbalance!(pid) do
     {:ok, balance} = getbalance(pid)
@@ -27,55 +25,28 @@ defmodule Gold do
     end        
   end
 
-  def getnewaddress!(pid) do
-    getnewaddress!(pid, "")
-  end
+  def getnewaddress!(pid), do: getnewaddress!(pid, "")
+  def getnewaddress(pid), do: getnewaddress(pid, "")
 
-  def getnewaddress(pid) do
-    getnewaddress(pid, "")
-  end
-
+  def getnewaddress(pid, account), do: GenServer.call(pid, {:getnewaddress, [account]})
   def getnewaddress!(pid, account) do
     {:ok, address} = getnewaddress(pid, account)
     address
   end
 
-  def getnewaddress(pid, account) do
-    GenServer.call(pid, {:getnewaddress, [account]})
-  end
-
+  def getaccount(pid, address), do: GenServer.call(pid, {:getaccount, [address]})
   def getaccount!(pid, address) do
     {:ok, account} = getaccount(pid, address)
     account
   end
 
-  def getaccount(pid, address) do
-    GenServer.call(pid, {:getaccount, [address]})
-  end
 
-  def listtransactions!(pid) do
-    listtransactions!(pid, "")
-  end
-
-  def listtransactions(pid) do
-    listtransactions(pid, "")
-  end
-
-  def listtransactions!(pid, account) do
-    listtransactions!(pid, account, 10)
-  end
-
-  def listtransactions(pid, account) do
-    listtransactions(pid, account, 10)
-  end
-
-  def listtransactions!(pid, account, limit) do
-    listtransactions!(pid, account, limit, 0)
-  end
-
-  def listtransactions(pid, account, limit) do
-    listtransactions(pid, account, limit, 0)
-  end
+  def listtransactions(pid), do: listtransactions(pid, "")
+  def listtransactions!(pid), do: listtransactions!(pid, "")
+  def listtransactions(pid, account), do: listtransactions(pid, account, 10)
+  def listtransactions!(pid, account), do: listtransactions!(pid, account, 10)
+  def listtransactions(pid, account, limit), do: listtransactions(pid, account, limit, 0)
+  def listtransactions!(pid, account, limit), do: listtransactions!(pid, account, limit, 0)
 
   def listtransactions!(pid, account, limit, offset) do
     {:ok, transactions} = listtransactions(pid, account, limit, offset)
@@ -145,8 +116,6 @@ defmodule Gold do
     %Decimal{sign: 1, coef: satoshi, exp: -8}
   end
   
-  def btc_to_decimal(nil) do
-    nil
-  end
+  def btc_to_decimal(nil), do: nil
   
 end
