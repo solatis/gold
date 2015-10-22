@@ -28,7 +28,6 @@ defmodule ExBitcoin do
     end        
   end
 
-
   def getnewaddress!(pid) do
     {:ok, address} = getnewaddress(pid)
     address
@@ -97,10 +96,18 @@ defmodule ExBitcoin do
     end
   end
 
+  @doc """
+  Converts a float BTC amount to an integer Satoshi amount without loss of
+  precision.
+  """
   def btc_to_satoshi(btc) do
     round(btc * @satoshi_per_btc)
   end
 
+  @doc """
+  Converts an integer Satoshi amount to a float BTC amount. Loss of precision
+  might occur.
+  """
   def satoshi_to_btc(satoshi) do
     satoshi / @satoshi_per_btc
   end
