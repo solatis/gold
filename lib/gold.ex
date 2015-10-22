@@ -97,7 +97,7 @@ defmodule Gold do
   @doc """
   Converts a float BTC amount to an Decimal.
   """
-  def btc_to_decimal(btc) do
+  def btc_to_decimal(btc) when is_float(btc) do
     satoshi_per_btc = :math.pow(10, 8)
 
     # Convert the bitcoins to integer to avoid any precision loss
