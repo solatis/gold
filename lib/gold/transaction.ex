@@ -33,7 +33,6 @@ defmodule Gold.Transaction do
       timereceived:  Map.fetch!(tx, "timereceived"),
       comment:       Map.get(tx, "comment", nil),
       otheraccount:  Map.get(tx, "otheraccount", nil)
-
     }
   end
 end
