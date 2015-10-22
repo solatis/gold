@@ -15,6 +15,9 @@ defmodule Gold.Transaction do
              :comment,
              :otheraccount]
 
+  @doc """
+  Creates Transaction struct from JSON transaction object.
+  """
   def from_json(tx) do    
     %Gold.Transaction{
       account:       Map.fetch!(tx, "account"), 

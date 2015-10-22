@@ -11,11 +11,9 @@ defmodule Gold do
   ##
   def start_link(config), do: GenServer.start_link(__MODULE__, config)
 
-  def getbalance!(pid) do
-    {:ok, balance} = getbalance(pid)
-    balance
-  end
-
+  @doc """
+  Returns server's total available balance.
+  """
   def getbalance(pid) do
     case GenServer.call(pid, :getbalance) do
       {:ok, balance} -> 
@@ -25,33 +23,83 @@ defmodule Gold do
     end        
   end
 
-  def getnewaddress!(pid), do: getnewaddress!(pid, "")
+  @doc """
+  Returns server's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid) do
+    {:ok, balance} = getbalance(pid)
+    balance
+  end
+
+  @doc """
+  Returns a new bitcoin address for receiving payments.
+  """
   def getnewaddress(pid), do: getnewaddress(pid, "")
 
+  @doc """
+  Returns a new bitcoin address for receiving payments, raising an exception on failure.
+  """
+  def getnewaddress!(pid), do: getnewaddress!(pid, "")
+
+  @doc """
+  Returns a new bitcoin address for receiving payments.
+  """
   def getnewaddress(pid, account), do: GenServer.call(pid, {:getnewaddress, [account]})
+
+  @doc """
+  Returns a new bitcoin address for receiving payments, raising an exception on failure.
+  """
   def getnewaddress!(pid, account) do
     {:ok, address} = getnewaddress(pid, account)
     address
   end
 
+  @doc """
+  Returns the account associated with the given address.
+  """
   def getaccount(pid, address), do: GenServer.call(pid, {:getaccount, [address]})
+
+  @doc """
+  Returns the account associated with the given address, raising an exception on failure.
+  """
   def getaccount!(pid, address) do
     {:ok, account} = getaccount(pid, address)
     account
   end
 
+  @doc """
+  Returns most recent transactions in wallet.
+  """
   def listtransactions(pid), do: listtransactions(pid, "")
+
+  @doc """
+  Returns most recent transactions in wallet, raising an exception on failure.
+  """
   def listtransactions!(pid), do: listtransactions!(pid, "")
+
+  @doc """
+  Returns most recent transactions in wallet.
+  """
   def listtransactions(pid, account), do: listtransactions(pid, account, 10)
+
+  @doc """
+  Returns most recent transactions in wallet, raising an exception on failure.
+  """
   def listtransactions!(pid, account), do: listtransactions!(pid, account, 10)
+
+  @doc """
+  Returns most recent transactions in wallet.
+  """
   def listtransactions(pid, account, limit), do: listtransactions(pid, account, limit, 0)
+
+  @doc """
+  Returns most recent transactions in wallet, raising an exception on failure.
+  """
   def listtransactions!(pid, account, limit), do: listtransactions!(pid, account, limit, 0)
 
-  def listtransactions!(pid, account, limit, offset) do
-    {:ok, transactions} = listtransactions(pid, account, limit, offset)
-    transactions
-  end
-
+  @doc """
+  Returns most recent transactions in wallet.
+  """
   def listtransactions(pid, account, limit, offset) do
     case GenServer.call(pid, {:listtransactions, [account, limit, offset]}) do
       {:ok, transactions} ->
@@ -59,6 +107,14 @@ defmodule Gold do
       otherwise -> 
         otherwise
     end        
+  end
+
+  @doc """
+  Returns most recent transactions in wallet, raising an exception on failure.
+  """
+  def listtransactions!(pid, account, limit, offset) do
+    {:ok, transactions} = listtransactions(pid, account, limit, offset)
+    transactions
   end
 
   ##
@@ -111,10 +167,6 @@ defmodule Gold do
     # Now construct a decimal
     %Decimal{sign: 1, coef: satoshi, exp: -8}
   end
-
-  @doc """
-  Fallback implementation for when a non-number is provided.
-  """
   def btc_to_decimal(nil), do: nil
   
 end
