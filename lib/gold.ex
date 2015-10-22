@@ -65,13 +65,10 @@ defmodule Gold do
   ##
   # Server-side
   ##
-  def handle_call(request, _from, config) when is_atom(request) do
-    handle_rpc_request(request, [], config)
-  end
-
-  def handle_call({request, params}, _from, config) when is_atom(request) and is_list(params) do
-    handle_rpc_request(request, params, config)
-  end
+  def handle_call(request, _from, config) 
+      when is_atom(request), do: handle_rpc_request(request, [], config)
+  def handle_call({request, params}, _from, config) 
+      when is_atom(request) and is_list(params), do: handle_rpc_request(request, params, config)
 
   ##
   # Internal functions
