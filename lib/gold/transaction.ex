@@ -35,4 +35,11 @@ defmodule Gold.Transaction do
       otheraccount:  Map.get(tx, "otheraccount", nil)
     }
   end
+
+  @doc """
+  Returns `true` if argument is a bitcoin transaction; otherwise `false`.
+  """
+  def transaction?(%Gold.Transaction{}), do: true
+  def transaction?(_), do: false
+
 end

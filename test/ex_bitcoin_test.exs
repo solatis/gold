@@ -26,10 +26,9 @@ defmodule GoldTest do
 
   test "listtransactions", %{btc: pid} do
     transactions = Gold.listtransactions!(pid)
-
-    IO.puts "transactions = #{inspect transactions}"
     
     assert is_list(transactions)
+    assert Enum.all?(transactions, &Gold.Transaction.transaction?/1)
   end
 
 end
