@@ -104,7 +104,7 @@ defmodule Gold do
     case GenServer.call(pid, {:listtransactions, [account, limit, offset]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
-      otherwise -> 
+      otherwise ->
         otherwise
     end        
   end
@@ -115,6 +115,42 @@ defmodule Gold do
   def listtransactions!(pid, account, limit, offset) do
     {:ok, transactions} = listtransactions(pid, account, limit, offset)
     transactions
+  end
+
+  @doc """
+  Get detailed information about in-wallet transaction.
+  """
+  def gettransaction(pid, txid) do
+    case GenServer.call(pid, {:gettransaction, [txid]}) do
+      {:ok, transaction} ->
+        {:ok, Transaction.from_json transaction}
+      otherwise ->
+        otherwise
+    end
+  end
+
+  @doc """
+  Get detailed information about in-wallet transaction, raising an exception on
+  failure.
+  """
+  def gettransaction!(pid, txid) do
+    {:ok, tx} = gettransaction(pid, txid)
+    tx
+  end
+
+  @doc """
+  Send an amount to a given address.
+  """
+  def sendtoaddress(pid, address, %Decimal{} = amount) do
+    GenServer.call(pid, {:sendtoaddress, [address, amount]})
+  end
+
+  @doc """
+  Send an amount to a given address, raising an exception on failure.
+  """
+  def sendtoaddress!(pid, address, %Decimal{} = amount) do
+    {:ok, txid} = sendtoaddress(pid, address, amount)
+    txid
   end
 
   ##

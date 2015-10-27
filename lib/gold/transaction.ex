@@ -20,16 +20,19 @@ defmodule Gold.Transaction do
   """
   def from_json(tx) do    
     %Gold.Transaction{
-      account:       Map.fetch!(tx, "account"), 
-      address:       Map.fetch!(tx, "address"),
-      category:      String.to_atom(Map.fetch!(tx, "category")),                       
+      account:       Map.get(tx, "account", nil), 
+      address:       Map.get(tx, "address", nil),
+      category:      case Map.get(tx, "category", nil) do
+                       nil -> nil
+                       otherwise -> String.to_atom otherwise
+                     end,
       amount:        Gold.btc_to_decimal(Map.fetch!(tx, "amount")),
-      vout:          Map.fetch!(tx, "vout"),
+      vout:          Map.get(tx, "vout", nil),
       fee:           Gold.btc_to_decimal(Map.get(tx, "fee", nil)),
       confirmations: Map.fetch!(tx, "confirmations"),
 
-      blockhash:     Map.fetch!(tx, "blockhash"),
-      blockindex:    Map.fetch!(tx, "blockindex"),
+      blockhash:     Map.get(tx, "blockhash", nil),
+      blockindex:    Map.get(tx, "blockindex", nil),
       txid:          Map.fetch!(tx, "txid"),
 
       time:          Map.fetch!(tx, "time"),
