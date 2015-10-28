@@ -9,6 +9,9 @@ defmodule Gold do
   ##
   # Client-side
   ##
+  @doc """
+  Starts GenServer link with Gold server.
+  """
   def start_link(config), do: GenServer.start_link(__MODULE__, config)
 
   @doc """
