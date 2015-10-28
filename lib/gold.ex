@@ -153,6 +153,22 @@ defmodule Gold do
     txid
   end
 
+  @doc """
+  Mine block immediately. Blocks are mined before RPC call returns.
+  """
+  def generate(pid, amount) do
+    GenServer.call(pid, {:generate, [amount]})
+  end
+
+  @doc """
+  Mine block immediately. Blocks are mined before RPC call returns. Raises an
+  exception on failure.
+  """
+  def generate!(pid, amount) do
+    {:ok, result} = generate(pid, amount)
+    result
+  end
+
   ##
   # Server-side
   ##
