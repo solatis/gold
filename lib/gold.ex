@@ -70,12 +70,12 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid), do: listtransactions(pid, "")
+  def listtransactions(pid), do: listtransactions(pid, "*")
 
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid), do: listtransactions!(pid, "")
+  def listtransactions!(pid), do: listtransactions!(pid, "*")
 
   @doc """
   Returns most recent transactions in wallet.
