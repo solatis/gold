@@ -220,7 +220,7 @@ defmodule Gold do
     satoshi = round(btc * satoshi_per_btc)
 
     # Now construct a decimal
-    %Decimal{sign: 1, coef: satoshi, exp: -8}
+    %Decimal{sign: if(satoshi < 0, do: -1, else: 1), coef: abs(satoshi), exp: -8}
   end
 
   def btc_to_decimal(nil), do: nil
