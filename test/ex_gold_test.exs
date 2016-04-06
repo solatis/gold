@@ -8,25 +8,25 @@ defmodule GoldTest do
 
   test "getnewaddress", %{btc: pid} do
     address = Gold.getnewaddress!(pid)
-    
+
     assert String.length(address) >= 26
     assert String.length(address) <= 34
   end
 
   test "getnewaddress w/ account", %{btc: pid} do
     address = Gold.getnewaddress!(pid, "foo_account")
-    
+
     assert String.length(address) >= 26
     assert String.length(address) <= 34
 
     account = Gold.getaccount!(pid, address)
-    
+
     assert account == "foo_account"
   end
 
   test "listtransactions", %{btc: pid} do
     transactions = Gold.listtransactions!(pid)
-    
+
     assert is_list(transactions)
     assert Enum.all?(transactions, &Gold.Transaction.transaction?/1)
   end
@@ -48,6 +48,10 @@ defmodule GoldTest do
     tx = Gold.gettransaction!(pid, txid)
     assert Gold.Transaction.transaction?(tx)
     assert tx.blockhash != nil
+  end
+
+  test "getinfo", %{btc: pid} do
+    IO.puts Gold.getinfo!(pid)
   end
 
 end
