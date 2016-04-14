@@ -17,8 +17,38 @@ defmodule Gold do
   @doc """
   Returns server's total available balance.
   """
-  def getbalance(pid) do
-    case GenServer.call(pid, :getbalance) do
+  def getbalance(pid), do: getbalance(pid, "")
+
+  @doc """
+  Returns server's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid), do: getbalance!(pid, "")
+
+  @doc """
+  Returns server's total available balance.
+  """
+  def getbalance(pid, account), do: getbalance(pid, account, 1)
+
+  @doc """
+  Returns server's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid, account), do: getbalance!(pid, account, 1)
+
+  @doc """
+  Returns server's total available balance.
+  """
+  def getbalance(pid, account, confirmations), do: getbalance(pid, account, confirmations, false)
+
+  @doc """
+  Returns server's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid, account, confirmations), do: getbalance!(pid, account, confirmations, false)
+
+  @doc """
+  Returns server's total available balance.
+  """
+  def getbalance(pid, account, confirmations, watchonly) do
+    case GenServer.call(pid, {:getbalance, [account, confirmations, watchonly]}) do
       {:ok, balance} -> 
         {:ok, btc_to_decimal(balance)}
       otherwise -> 
@@ -29,8 +59,8 @@ defmodule Gold do
   @doc """
   Returns server's total available balance, raising an exception on failure.
   """
-  def getbalance!(pid) do
-    {:ok, balance} = getbalance(pid)
+  def getbalance!(pid, account, confirmations, watchonly) do
+    {:ok, balance} = getbalance(pid, account, confirmations, watchonly)
     balance
   end
 
@@ -103,8 +133,18 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid, account, limit, offset) do
-    case GenServer.call(pid, {:listtransactions, [account, limit, offset]}) do
+  def listtransactions(pid, account, limit, offset), do: listtransactions(pid, account, limit, offset, false)
+
+  @doc """
+  Returns most recent transactions in wallet, raising an exception on failure.
+  """
+  def listtransactions!(pid, account, limit, offset), do: listtransactions!(pid, account, limit, offset, false)
+
+  @doc """
+  Returns most recent transactions in wallet.
+  """
+  def listtransactions(pid, account, limit, offset, watchonly) do
+    case GenServer.call(pid, {:listtransactions, [account, limit, offset, watchonly]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
       otherwise ->
@@ -115,8 +155,8 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid, account, limit, offset) do
-    {:ok, transactions} = listtransactions(pid, account, limit, offset)
+  def listtransactions!(pid, account, limit, offset, watchonly) do
+    {:ok, transactions} = listtransactions(pid, account, limit, offset, watchonly)
     transactions
   end
 
