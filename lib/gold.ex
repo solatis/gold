@@ -157,6 +157,44 @@ defmodule Gold do
   end
 
   @doc """
+  Add an address or pubkey script to the wallet without the associated private key.
+  """
+  def importaddress(pid, address), do: importaddress(pid, address, "")
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key,
+  raising an exception on failure.
+  """
+  def importaddress!(pid, address), do: importaddress!(pid, address, "")
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key.
+  """
+  def importaddress(pid, address, account), do: importaddress(pid, address, account, true)
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key,
+  raising an exception on failure.
+  """
+  def importaddress!(pid, address, account), do: importaddress!(pid, address, account, true)
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key.
+  """
+  def importaddress(pid, address, account, rescan) do
+    GenServer.call(pid, {:importaddress, [address, account, rescan]})
+  end
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key,
+  raising an exception on failure.
+  """
+  def importaddress!(pid, address, account, rescan) do
+    {:ok, _} = importaddress(pid, address, account, rescan)
+    :ok
+  end
+
+  @doc """
   Mine block immediately. Blocks are mined before RPC call returns.
   """
   def generate(pid, amount) do
@@ -205,6 +243,8 @@ defmodule Gold do
         {:reply, :forbidden, config}
       {:ok, %{status_code: 404}} -> 
         {:reply, :notfound, config}
+      {:ok, %{status_code: 500}} ->
+        {:reply, :internal_server_error, config}
       otherwise -> 
         {:reply, otherwise, config}
     end
