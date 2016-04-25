@@ -12,7 +12,7 @@ defmodule Gold do
   @doc """
   Starts GenServer link with Gold server.
   """
-  def start_link(config), do: GenServer.start_link(__MODULE__, config)
+  def start_link(config, opts \\ []), do: GenServer.start_link(__MODULE__, config, opts)
 
   @doc """
   Returns server's total available balance.
