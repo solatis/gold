@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Poison) and not Code.ensure_loaded?(Ecto) do
+if Code.ensure_loaded?(Poison) and not Module.defines?(Elixir.Poison.Encoder.Decimal, {:encode, 2}) do
   defimpl Poison.Encoder, for: Decimal do
     @doc """
     Implements custom Decimal encoder that allows serialization of Decimal objects
