@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Poison) do
+if Code.ensure_loaded?(Poison) and not Code.ensure_loaded?(Ecto) do
   defimpl Poison.Encoder, for: Decimal do
     @doc """
     Implements custom Decimal encoder that allows serialization of Decimal objects
