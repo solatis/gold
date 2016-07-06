@@ -22,7 +22,9 @@ defmodule Gold.Mixfile do
      {:poison,    "~> 1.5"},
      
      {:earmark,   "~> 0.1",  only: :dev},
-     {:ex_doc,    "~> 0.10", only: :dev}]
+     {:ex_doc,    "~> 0.10", only: :dev},
+     {:ecto,      "~> 2.0"}, # a hack...
+    ]
   end
 
   defp description do
