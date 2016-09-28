@@ -301,6 +301,7 @@ defmodule Gold do
 
     # Now construct a decimal
     %Decimal{sign: if(satoshi < 0, do: -1, else: 1), coef: abs(satoshi), exp: -8}
+    |> Decimal.round(8)
   end
 
   def btc_to_decimal(nil), do: nil
