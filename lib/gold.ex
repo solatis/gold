@@ -15,37 +15,57 @@ defmodule Gold do
   def start_link(config), do: GenServer.start_link(__MODULE__, config)
 
   @doc """
-  Returns server's total available balance.
+  Returns basic info about wallet and connection
+  """
+  def getinfo(pid) do
+    case GenServer.call(pid, {:getinfo, []}) do
+      {:ok, info} -> 
+        {:ok, info}
+      otherwise -> 
+        otherwise
+    end
+  end
+
+  @doc """
+  Returns basic info about wallet and connection, raising an exeption on failure.
+  """
+  def getinfo!(pid) do
+    {:ok, info} = getinfo(pid)
+    info
+  end
+
+  @doc """
+  Returns wallet's total available balance.
   """
   def getbalance(pid), do: getbalance(pid, "")
 
   @doc """
-  Returns server's total available balance, raising an exception on failure.
+  Returns wallet's total available balance, raising an exception on failure.
   """
   def getbalance!(pid), do: getbalance!(pid, "")
 
   @doc """
-  Returns server's total available balance.
+  Returns wallet's total available balance.
   """
   def getbalance(pid, account), do: getbalance(pid, account, 1)
 
   @doc """
-  Returns server's total available balance, raising an exception on failure.
+  Returns wallet's total available balance, raising an exception on failure.
   """
   def getbalance!(pid, account), do: getbalance!(pid, account, 1)
 
   @doc """
-  Returns server's total available balance.
+  Returns wallet's total available balance.
   """
   def getbalance(pid, account, confirmations), do: getbalance(pid, account, confirmations, false)
 
   @doc """
-  Returns server's total available balance, raising an exception on failure.
+  Returns wallet's total available balance, raising an exception on failure.
   """
   def getbalance!(pid, account, confirmations), do: getbalance!(pid, account, confirmations, false)
 
   @doc """
-  Returns server's total available balance.
+  Returns wallet's total available balance.
   """
   def getbalance(pid, account, confirmations, watchonly) do
     case GenServer.call(pid, {:getbalance, [account, confirmations, watchonly]}) do
