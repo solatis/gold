@@ -299,13 +299,17 @@ defmodule Gold do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
           %{"error" => error} -> {:reply, {:error, error}, config}
         end
-      {:ok, %{status_code: 401}} -> 
+      {:ok, %{status_code: 401, body: error}} -> 
+        Logger.error "Bitcoin RPC error status forbidden: #{error}"
         {:reply, :forbidden, config}
-      {:ok, %{status_code: 404}} -> 
+      {:ok, %{status_code: 404, body: error}} -> 
+        Logger.error "Bitcoin RPC error status notfound: #{error}"
         {:reply, :notfound, config}
-      {:ok, %{status_code: 500}} ->
+      {:ok, %{status_code: 500, body: error}} ->
+        Logger.error "Bitcoin RPC error status internal_server_error: #{error}"
         {:reply, :internal_server_error, config}
       otherwise -> 
+        Logger.error "Bitcoin RPC unexpected response: #{otherwise}"
         {:reply, otherwise, config}
     end
   end
