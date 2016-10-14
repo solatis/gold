@@ -293,25 +293,30 @@ defmodule Gold do
 
     Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
 
-    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers) do
+    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", JSON.encode!(command), headers) do
       {:ok, %{status_code: 200, body: body}} -> 
-        case Poison.decode!(body) do
+        case JSON.decode!(body) do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
           %{"error" => error} -> {:reply, {:error, error}, config}
         end
-      {:ok, %{status_code: 401, body: error}} -> 
-        Logger.error "Bitcoin RPC error status forbidden: #{error}"
-        {:reply, :forbidden, config}
-      {:ok, %{status_code: 404, body: error}} -> 
-        Logger.error "Bitcoin RPC error status notfound: #{error}"
-        {:reply, :notfound, config}
-      {:ok, %{status_code: 500, body: error}} ->
-        Logger.error "Bitcoin RPC error status internal_server_error: #{error}"
-        {:reply, :internal_server_error, config}
+      {:ok, %{status_code: code, body: error}} ->
+        {:reply, handle_error(code, error), config}
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.debug "Bitcoin RPC HTTP error: #{reason}"
+        {:reply, {:error, status: :connection_closed, error: reason}, config}
       otherwise -> 
-        Logger.error "Bitcoin RPC unexpected response: #{otherwise}"
+        Logger.error "Bitcoin RPC unexpected response: #{inspect otherwise}"
         {:reply, otherwise, config}
     end
+  end
+
+  @statuses %{401 => :forbidden, 404 => :notfound, 500 => :internal_server_error}
+
+  defp handle_error(status_code, error) do
+    status = @statuses[status_code]
+    Logger.debug "Bitcoin RPC error status #{status}: #{error}"
+    %{"error" => %{"message" => message}} = JSON.decode!(error)
+    {:error, %{status: status, error: message}}
   end
 
   @doc """

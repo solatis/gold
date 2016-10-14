@@ -43,7 +43,7 @@ defmodule GoldTest do
     assert tx.blockhash == nil
 
     # Now we generate a few blocks and check again.
-    result = Gold.generate!(pid, 10)
+    Gold.generate!(pid, 10)
 
     tx = Gold.gettransaction!(pid, txid)
     assert Gold.Transaction.transaction?(tx)
