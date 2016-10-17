@@ -295,7 +295,7 @@ defmodule Gold do
 
     case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", JSON.encode!(command), headers) do
       {:ok, %{status_code: 200, body: body}} -> 
-        Logger.debug "RAW message: #{body}"
+        Logger.debug "RAW message: #{body}, Method: %{method}"
         case JSON.decode!(body) do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
           %{"error" => error} -> {:reply, {:error, error}, config}
