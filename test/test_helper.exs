@@ -3,7 +3,7 @@ defmodule Gold.DefaultCase do
 
   setup do        
     {:ok, pid} = 
-      Gold.start_link(%Gold.Config{hostname: "localhost", port: 18332, user: "bitcoinrpc", password: "changeme"})
+      Gold.start_link(%Gold.Config{hostname: "localhost", port: 8332, user: "bitcoinrpc", password: "changeme"})
        
     {:ok, btc: pid}
   end
