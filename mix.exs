@@ -3,7 +3,7 @@ defmodule Gold.Mixfile do
 
   def project do
     [app: :gold,
-     version: "0.14.0",
+     version: "0.15.0",
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -19,9 +19,9 @@ defmodule Gold.Mixfile do
   defp deps do
     [{:decimal,   "~> 1.1"},
      {:httpoison, "~> 0.7"},
-     {:json, "~> 1.0"},
-     {:earmark,   ">= 0.0.0"},
-     {:ex_doc,    "~> 0.14"}
+     {:poison, "~> 3.0"},
+     {:earmark,   ">= 0.0.0", only: :dev},
+     {:ex_doc,    ">= 0.0.0", only: :dev}
     ]
   end
 

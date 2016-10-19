@@ -284,6 +284,10 @@ defmodule Gold do
   defp handle_rpc_request(method, params, config) when is_atom(method) do
     %Config{hostname: hostname, port: port, user: user, password: password} = config
 
+    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
+
+    params = PoisonedDecimal.poison_params(params)
+
     command = %{"jsonrpc": "2.0",
                 "method": to_string(method),
                 "params": params,
@@ -293,11 +297,9 @@ defmodule Gold do
 
     options = [timeout: 30000, recv_timeout: 20000]
 
-    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
-
-    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", JSON.encode!(command), headers, options) do
+    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers, options) do
       {:ok, %{status_code: 200, body: body}} -> 
-        case JSON.decode!(body) do
+        case Poison.decode!(body) do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
           %{"error" => error} -> {:reply, {:error, error}, config}
         end
@@ -317,7 +319,7 @@ defmodule Gold do
   defp handle_error(status_code, error) do
     status = @statuses[status_code]
     Logger.debug "Bitcoin RPC error status #{status}: #{error}"
-    %{"error" => %{"message" => message}} = JSON.decode!(error)
+    %{"error" => %{"message" => message}} = Poison.decode!(error)
     {:error, %{status: status, error: message}}
   end
 
