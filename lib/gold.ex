@@ -15,10 +15,60 @@ defmodule Gold do
   def start_link(config), do: GenServer.start_link(__MODULE__, config)
 
   @doc """
-  Returns server's total available balance.
+  Returns basic info about wallet and connection
   """
-  def getbalance(pid) do
-    case GenServer.call(pid, :getbalance) do
+  def getinfo(pid) do
+    case GenServer.call(pid, {:getinfo, []}) do
+      {:ok, info} -> 
+        {:ok, info}
+      otherwise -> 
+        otherwise
+    end
+  end
+
+  @doc """
+  Returns basic info about wallet and connection, raising an exeption on failure.
+  """
+  def getinfo!(pid) do
+    {:ok, info} = getinfo(pid)
+    info
+  end
+
+  @doc """
+  Returns wallet's total available balance.
+  """
+  def getbalance(pid), do: getbalance(pid, "")
+
+  @doc """
+  Returns wallet's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid), do: getbalance!(pid, "")
+
+  @doc """
+  Returns wallet's total available balance.
+  """
+  def getbalance(pid, account), do: getbalance(pid, account, 1)
+
+  @doc """
+  Returns wallet's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid, account), do: getbalance!(pid, account, 1)
+
+  @doc """
+  Returns wallet's total available balance.
+  """
+  def getbalance(pid, account, confirmations), do: getbalance(pid, account, confirmations, false)
+
+  @doc """
+  Returns wallet's total available balance, raising an exception on failure.
+  """
+  def getbalance!(pid, account, confirmations), do: getbalance!(pid, account, confirmations, false)
+
+  @doc """
+  Returns wallet's total available balance.
+  """
+  def getbalance(pid, account, confirmations, watchonly) do
+    case GenServer.call(pid, {:getbalance, [account, confirmations, watchonly]}) do
       {:ok, balance} -> 
         {:ok, btc_to_decimal(balance)}
       otherwise -> 
@@ -29,8 +79,8 @@ defmodule Gold do
   @doc """
   Returns server's total available balance, raising an exception on failure.
   """
-  def getbalance!(pid) do
-    {:ok, balance} = getbalance(pid)
+  def getbalance!(pid, account, confirmations, watchonly) do
+    {:ok, balance} = getbalance(pid, account, confirmations, watchonly)
     balance
   end
 
@@ -103,8 +153,18 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid, account, limit, offset) do
-    case GenServer.call(pid, {:listtransactions, [account, limit, offset]}) do
+  def listtransactions(pid, account, limit, offset), do: listtransactions(pid, account, limit, offset, false)
+
+  @doc """
+  Returns most recent transactions in wallet, raising an exception on failure.
+  """
+  def listtransactions!(pid, account, limit, offset), do: listtransactions!(pid, account, limit, offset, false)
+
+  @doc """
+  Returns most recent transactions in wallet.
+  """
+  def listtransactions(pid, account, limit, offset, watchonly) do
+    case GenServer.call(pid, {:listtransactions, [account, limit, offset, watchonly]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
       otherwise ->
@@ -115,8 +175,8 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid, account, limit, offset) do
-    {:ok, transactions} = listtransactions(pid, account, limit, offset)
+  def listtransactions!(pid, account, limit, offset, watchonly) do
+    {:ok, transactions} = listtransactions(pid, account, limit, offset, watchonly)
     transactions
   end
 
@@ -157,6 +217,44 @@ defmodule Gold do
   end
 
   @doc """
+  Add an address or pubkey script to the wallet without the associated private key.
+  """
+  def importaddress(pid, address), do: importaddress(pid, address, "")
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key,
+  raising an exception on failure.
+  """
+  def importaddress!(pid, address), do: importaddress!(pid, address, "")
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key.
+  """
+  def importaddress(pid, address, account), do: importaddress(pid, address, account, true)
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key,
+  raising an exception on failure.
+  """
+  def importaddress!(pid, address, account), do: importaddress!(pid, address, account, true)
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key.
+  """
+  def importaddress(pid, address, account, rescan) do
+    GenServer.call(pid, {:importaddress, [address, account, rescan]})
+  end
+
+  @doc """
+  Add an address or pubkey script to the wallet without the associated private key,
+  raising an exception on failure.
+  """
+  def importaddress!(pid, address, account, rescan) do
+    {:ok, _} = importaddress(pid, address, account, rescan)
+    :ok
+  end
+
+  @doc """
   Mine block immediately. Blocks are mined before RPC call returns.
   """
   def generate(pid, amount) do
@@ -186,6 +284,10 @@ defmodule Gold do
   defp handle_rpc_request(method, params, config) when is_atom(method) do
     %Config{hostname: hostname, port: port, user: user, password: password} = config
 
+    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
+
+    params = PoisonedDecimal.poison_params(params)
+
     command = %{"jsonrpc": "2.0",
                 "method": to_string(method),
                 "params": params,
@@ -193,21 +295,32 @@ defmodule Gold do
 
     headers = ["Authorization": "Basic " <> Base.encode64(user <> ":" <> password)]
 
-    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
+    options = [timeout: 30000, recv_timeout: 20000]
 
-    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers) do
+    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers, options) do
       {:ok, %{status_code: 200, body: body}} -> 
         case Poison.decode!(body) do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
           %{"error" => error} -> {:reply, {:error, error}, config}
         end
-      {:ok, %{status_code: 401}} -> 
-        {:reply, :forbidden, config}
-      {:ok, %{status_code: 404}} -> 
-        {:reply, :notfound, config}
+      {:ok, %{status_code: code, body: error}} ->
+        {:reply, handle_error(code, error), config}
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.debug "Bitcoin RPC HTTP error: #{reason}"
+        {:reply, {:error, status: :connection_closed, error: reason}, config}
       otherwise -> 
+        Logger.error "Bitcoin RPC unexpected response: #{inspect otherwise}"
         {:reply, otherwise, config}
     end
+  end
+
+  @statuses %{401 => :forbidden, 404 => :notfound, 500 => :internal_server_error}
+
+  defp handle_error(status_code, error) do
+    status = @statuses[status_code]
+    Logger.debug "Bitcoin RPC error status #{status}: #{error}"
+    %{"error" => %{"message" => message}} = Poison.decode!(error)
+    {:error, %{status: status, error: message}}
   end
 
   @doc """
@@ -222,7 +335,6 @@ defmodule Gold do
     # Now construct a decimal
     %Decimal{sign: if(satoshi < 0, do: -1, else: 1), coef: abs(satoshi), exp: -8}
   end
-
   def btc_to_decimal(nil), do: nil
   
 end

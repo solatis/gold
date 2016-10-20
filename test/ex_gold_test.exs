@@ -32,6 +32,8 @@ defmodule GoldTest do
   end
 
   test "sendtoaddress -> generate -> gettransaction", %{btc: pid} do
+    # Generate blocks so we have some cash
+    Gold.generate!(pid, 101)
     address = Gold.getnewaddress!(pid)
     txid = Gold.sendtoaddress!(pid, address, Decimal.new("0.01"))
     tx = Gold.gettransaction!(pid, txid)
@@ -43,7 +45,7 @@ defmodule GoldTest do
     assert tx.blockhash == nil
 
     # Now we generate a few blocks and check again.
-    result = Gold.generate!(pid, 10)
+    Gold.generate!(pid, 10)
 
     tx = Gold.gettransaction!(pid, txid)
     assert Gold.Transaction.transaction?(tx)

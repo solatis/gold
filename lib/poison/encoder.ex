@@ -1,10 +1,5 @@
-defimpl Poison.Encoder, for: Decimal do
-  @doc """
-  Implements custom Decimal encoder that allows serialization of Decimal objects
-  into JSON using Poison.
-  """
-
-  def encode(decimal, _options) do
-    Decimal.to_string(decimal)
+defimpl Poison.Encoder, for: PoisonedDecimal do
+  def encode(term, _opts) do
+    << Decimal.to_string(term.decimal, :normal)::binary >>
   end
 end
