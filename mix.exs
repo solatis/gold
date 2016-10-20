@@ -9,7 +9,9 @@ defmodule Gold.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps,
      package: package,
-     description: description]
+     description: description,
+     consolidate_protocols: Mix.env != :test
+    ]
   end
 
   def application do
