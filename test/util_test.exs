@@ -1,5 +1,5 @@
 defmodule UtilTest do
-  use Gold.DefaultCase
+  use ExUnit.Case
   import PoisonedDecimal
 
   @decimal Decimal.new("123")
