@@ -17,8 +17,8 @@ defmodule Gold do
   @doc """
   Returns server's total available balance.
   """
-  def getbalance(pid) do
-    case GenServer.call(pid, :getbalance) do
+  def getbalance(name) do
+    case GenServer.call(name, :getbalance) do
       {:ok, balance} -> 
         {:ok, btc_to_decimal(balance)}
       otherwise -> 
@@ -29,82 +29,82 @@ defmodule Gold do
   @doc """
   Returns server's total available balance, raising an exception on failure.
   """
-  def getbalance!(pid) do
-    {:ok, balance} = getbalance(pid)
+  def getbalance!(name) do
+    {:ok, balance} = getbalance(name)
     balance
   end
 
   @doc """
   Returns a new bitcoin address for receiving payments.
   """
-  def getnewaddress(pid), do: getnewaddress(pid, "")
+  def getnewaddress(name), do: getnewaddress(name, "")
 
   @doc """
   Returns a new bitcoin address for receiving payments, raising an exception on failure.
   """
-  def getnewaddress!(pid), do: getnewaddress!(pid, "")
+  def getnewaddress!(name), do: getnewaddress!(name, "")
 
   @doc """
   Returns a new bitcoin address for receiving payments.
   """
-  def getnewaddress(pid, account), do: GenServer.call(pid, {:getnewaddress, [account]})
+  def getnewaddress(name, account), do: GenServer.call(name, {:getnewaddress, [account]})
 
   @doc """
   Returns a new bitcoin address for receiving payments, raising an exception on failure.
   """
-  def getnewaddress!(pid, account) do
-    {:ok, address} = getnewaddress(pid, account)
+  def getnewaddress!(name, account) do
+    {:ok, address} = getnewaddress(name, account)
     address
   end
 
   @doc """
   Returns the account associated with the given address.
   """
-  def getaccount(pid, address), do: GenServer.call(pid, {:getaccount, [address]})
+  def getaccount(name, address), do: GenServer.call(name, {:getaccount, [address]})
 
   @doc """
   Returns the account associated with the given address, raising an exception on failure.
   """
-  def getaccount!(pid, address) do
-    {:ok, account} = getaccount(pid, address)
+  def getaccount!(name, address) do
+    {:ok, account} = getaccount(name, address)
     account
   end
 
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid), do: listtransactions(pid, "*")
+  def listtransactions(name), do: listtransactions(name, "*")
 
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid), do: listtransactions!(pid, "*")
+  def listtransactions!(name), do: listtransactions!(name, "*")
 
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid, account), do: listtransactions(pid, account, 10)
+  def listtransactions(name, account), do: listtransactions(name, account, 10)
 
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid, account), do: listtransactions!(pid, account, 10)
+  def listtransactions!(name, account), do: listtransactions!(name, account, 10)
 
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid, account, limit), do: listtransactions(pid, account, limit, 0)
+  def listtransactions(name, account, limit), do: listtransactions(name, account, limit, 0)
 
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid, account, limit), do: listtransactions!(pid, account, limit, 0)
+  def listtransactions!(name, account, limit), do: listtransactions!(name, account, limit, 0)
 
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(pid, account, limit, offset) do
-    case GenServer.call(pid, {:listtransactions, [account, limit, offset]}) do
+  def listtransactions(name, account, limit, offset) do
+    case GenServer.call(name, {:listtransactions, [account, limit, offset]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
       otherwise ->
@@ -115,16 +115,16 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(pid, account, limit, offset) do
-    {:ok, transactions} = listtransactions(pid, account, limit, offset)
+  def listtransactions!(name, account, limit, offset) do
+    {:ok, transactions} = listtransactions(name, account, limit, offset)
     transactions
   end
 
   @doc """
   Get detailed information about in-wallet transaction.
   """
-  def gettransaction(pid, txid) do
-    case GenServer.call(pid, {:gettransaction, [txid]}) do
+  def gettransaction(name, txid) do
+    case GenServer.call(name, {:gettransaction, [txid]}) do
       {:ok, transaction} ->
         {:ok, Transaction.from_json transaction}
       otherwise ->
@@ -136,77 +136,77 @@ defmodule Gold do
   Get detailed information about in-wallet transaction, raising an exception on
   failure.
   """
-  def gettransaction!(pid, txid) do
-    {:ok, tx} = gettransaction(pid, txid)
+  def gettransaction!(name, txid) do
+    {:ok, tx} = gettransaction(name, txid)
     tx
   end
 
   @doc """
   Send an amount to a given address.
   """
-  def sendtoaddress(pid, address, %Decimal{} = amount) do
-    GenServer.call(pid, {:sendtoaddress, [address, amount]})
+  def sendtoaddress(name, address, %Decimal{} = amount) do
+    GenServer.call(name, {:sendtoaddress, [address, amount]})
   end
 
   @doc """
   Send an amount to a given address, raising an exception on failure.
   """
-  def sendtoaddress!(pid, address, %Decimal{} = amount) do
-    {:ok, txid} = sendtoaddress(pid, address, amount)
+  def sendtoaddress!(name, address, %Decimal{} = amount) do
+    {:ok, txid} = sendtoaddress(name, address, amount)
     txid
   end
 
   @doc """
   Add an address or pubkey script to the wallet without the associated private key.
   """
-  def importaddress(pid, address), do: importaddress(pid, address, "")
+  def importaddress(name, address), do: importaddress(name, address, "")
 
   @doc """
   Add an address or pubkey script to the wallet without the associated private key,
   raising an exception on failure.
   """
-  def importaddress!(pid, address), do: importaddress!(pid, address, "")
+  def importaddress!(name, address), do: importaddress!(name, address, "")
 
   @doc """
   Add an address or pubkey script to the wallet without the associated private key.
   """
-  def importaddress(pid, address, account), do: importaddress(pid, address, account, true)
+  def importaddress(name, address, account), do: importaddress(name, address, account, true)
 
   @doc """
   Add an address or pubkey script to the wallet without the associated private key,
   raising an exception on failure.
   """
-  def importaddress!(pid, address, account), do: importaddress!(pid, address, account, true)
+  def importaddress!(name, address, account), do: importaddress!(name, address, account, true)
 
   @doc """
   Add an address or pubkey script to the wallet without the associated private key.
   """
-  def importaddress(pid, address, account, rescan) do
-    GenServer.call(pid, {:importaddress, [address, account, rescan]})
+  def importaddress(name, address, account, rescan) do
+    GenServer.call(name, {:importaddress, [address, account, rescan]})
   end
 
   @doc """
   Add an address or pubkey script to the wallet without the associated private key,
   raising an exception on failure.
   """
-  def importaddress!(pid, address, account, rescan) do
-    {:ok, _} = importaddress(pid, address, account, rescan)
+  def importaddress!(name, address, account, rescan) do
+    {:ok, _} = importaddress(name, address, account, rescan)
     :ok
   end
 
   @doc """
   Mine block immediately. Blocks are mined before RPC call returns.
   """
-  def generate(pid, amount) do
-    GenServer.call(pid, {:generate, [amount]})
+  def generate(name, amount) do
+    GenServer.call(name, {:generate, [amount]})
   end
 
   @doc """
   Mine block immediately. Blocks are mined before RPC call returns. Raises an
   exception on failure.
   """
-  def generate!(pid, amount) do
-    {:ok, result} = generate(pid, amount)
+  def generate!(name, amount) do
+    {:ok, result} = generate(name, amount)
     result
   end
 
