@@ -35,4 +35,25 @@ config :gold, :bitcoin, [
   password: "changeme"
 ]
 
+config :gold, :testnet3, [
+  hostname: "localhost",
+  port: 18332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
+config :gold, :litecoin, [
+  hostname: "localhost",
+  port: 9332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
+config :gold, :litecoin_testnet, [
+  hostname: "localhost",
+  port: 19332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
 import_config "#{Mix.env}.exs"
