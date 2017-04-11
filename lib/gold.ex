@@ -6,6 +6,8 @@ defmodule Gold do
   alias Gold.Config
   alias Gold.Transaction
 
+  import GenServer, only: [call: 2]
+
   ##
   # Client-side
   ##
@@ -18,7 +20,7 @@ defmodule Gold do
   Returns server's total available balance.
   """
   def getbalance(name) do
-    case GenServer.call(name, :getbalance) do
+    case call(name, :getbalance) do
       {:ok, balance} -> 
         {:ok, btc_to_decimal(balance)}
       otherwise -> 
@@ -47,7 +49,7 @@ defmodule Gold do
   @doc """
   Returns a new bitcoin address for receiving payments.
   """
-  def getnewaddress(name, account), do: GenServer.call(name, {:getnewaddress, [account]})
+  def getnewaddress(name, account), do: call(name, {:getnewaddress, [account]})
 
   @doc """
   Returns a new bitcoin address for receiving payments, raising an exception on failure.
@@ -60,7 +62,7 @@ defmodule Gold do
   @doc """
   Returns the account associated with the given address.
   """
-  def getaccount(name, address), do: GenServer.call(name, {:getaccount, [address]})
+  def getaccount(name, address), do: call(name, {:getaccount, [address]})
 
   @doc """
   Returns the account associated with the given address, raising an exception on failure.
@@ -104,7 +106,7 @@ defmodule Gold do
   Returns most recent transactions in wallet.
   """
   def listtransactions(name, account, limit, offset) do
-    case GenServer.call(name, {:listtransactions, [account, limit, offset]}) do
+    case call(name, {:listtransactions, [account, limit, offset]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
       otherwise ->
@@ -124,7 +126,7 @@ defmodule Gold do
   Get detailed information about in-wallet transaction.
   """
   def gettransaction(name, txid) do
-    case GenServer.call(name, {:gettransaction, [txid]}) do
+    case call(name, {:gettransaction, [txid]}) do
       {:ok, transaction} ->
         {:ok, Transaction.from_json transaction}
       otherwise ->
@@ -145,7 +147,7 @@ defmodule Gold do
   Send an amount to a given address.
   """
   def sendtoaddress(name, address, %Decimal{} = amount) do
-    GenServer.call(name, {:sendtoaddress, [address, amount]})
+    call(name, {:sendtoaddress, [address, amount]})
   end
 
   @doc """
@@ -182,7 +184,7 @@ defmodule Gold do
   Add an address or pubkey script to the wallet without the associated private key.
   """
   def importaddress(name, address, account, rescan) do
-    GenServer.call(name, {:importaddress, [address, account, rescan]})
+    call(name, {:importaddress, [address, account, rescan]})
   end
 
   @doc """
@@ -198,7 +200,7 @@ defmodule Gold do
   Mine block immediately. Blocks are mined before RPC call returns.
   """
   def generate(name, amount) do
-    GenServer.call(name, {:generate, [amount]})
+    call(name, {:generate, [amount]})
   end
 
   @doc """
