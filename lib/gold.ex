@@ -136,7 +136,7 @@ defmodule Gold do
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
       otherwise ->
         otherwise
-    end        
+    end
   end
 
   @doc """
@@ -238,6 +238,79 @@ defmodule Gold do
   end
 
   @doc """
+  https://bitcoin.org/en/developer-reference#getblock
+  """
+  def getblock(name, hash) do
+    call(name, {:getblock, [hash]})
+  end
+
+  def getblock!(name, hash) do
+    {:ok, block} = getblock(name, hash)
+    block
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#getblockhash
+  """
+  def getblockhash(name, index) do
+    call(name, {:getblockhash, [index]})
+  end
+
+  def getblockhash!(name, index) do
+    {:ok, blockhash} = getblockhash(name, index)
+    blockhash
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#getinfo
+  """
+
+  def getinfo(name) do
+    call(name, {:getinfo, []})
+  end
+
+  def getinfo!(name) do
+    {:ok, info} = getinfo(name)
+    info
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#getrawtransaction
+  """
+  def getrawtrasaction(name, txid, verbose \\ 1) do
+    call(name, {:getrawtransaction, [txid, verbose]})
+  end
+
+  def getrawtransaction!(name, txid, verbose \\ 1) do
+    {:ok, tx} = getrawtrasaction(name, txid, verbose)
+    tx
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#getblockcount
+  """
+  def getblockcount(name) do
+    call(name, {:getblockcount, []})
+  end
+
+  def getblockcount!(name) do
+    {:ok, count} = getblockcount(name)
+    count
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#gettxout
+  """
+  def gettxout(name, txid, n \\ 1) do
+    call(name, {:gettxout, [txid, n]})
+  end
+
+  def gettxout!(name, txid, n \\ 1) do
+    {:ok, txout} = gettxout(name, txid, n)
+    txout
+  end
+
+  @doc """
   Call generic RPC command
   """
   def call(name, method) when is_atom(method), do:
@@ -255,6 +328,15 @@ defmodule Gold do
   defp handle_call({:reply, reply, _config}) do
     reply
   end
+
+
+  ##
+  # Server-side
+  ##
+  def handle_call(request, _from, config)
+      when is_atom(request), do: handle_rpc_request(request, [], config)
+  def handle_call({request, params}, _from, config)
+      when is_atom(request) and is_list(params), do: handle_rpc_request(request, params, config)
 
   ##
   # Internal functions
@@ -276,14 +358,14 @@ defmodule Gold do
     options = [timeout: 30000, recv_timeout: 20000]
 
     case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers, options) do
-      {:ok, %{status_code: 200, body: body}} -> 
+      {:ok, %{status_code: 200, body: body}} ->
         case Poison.decode!(body) do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
           %{"error" => error} -> {:reply, {:error, error}, config}
         end
-      {:ok, %{status_code: 401}} -> 
+      {:ok, %{status_code: 401}} ->
         {:reply, :forbidden, config}
-      {:ok, %{status_code: 404}} -> 
+      {:ok, %{status_code: 404}} ->
         {:reply, :notfound, config}
       {:ok, %{status_code: 500}} ->
         {:reply, :internal_server_error, config}

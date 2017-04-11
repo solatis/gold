@@ -8,25 +8,21 @@ defmodule GoldTest do
 
   test "getnewaddress", %{btc: name} do
     address = Gold.getnewaddress!(name)
-    
     assert String.length(address) >= 26
     assert String.length(address) <= 34
   end
 
   test "getnewaddress w/ account", %{btc: name} do
     address = Gold.getnewaddress!(name, "foo_account")
-    
     assert String.length(address) >= 26
     assert String.length(address) <= 34
 
     account = Gold.getaccount!(name, address)
-    
     assert account == "foo_account"
   end
 
   test "listtransactions", %{btc: name} do
     transactions = Gold.listtransactions!(name)
-    
     assert is_list(transactions)
     assert Enum.all?(transactions, &Gold.Transaction.transaction?/1)
   end
@@ -46,10 +42,22 @@ defmodule GoldTest do
 
     # Now we generate a few blocks and check again.
     Gold.generate!(name, 10)
-
     tx = Gold.gettransaction!(name, txid)
     assert Gold.Transaction.transaction?(tx)
     assert tx.blockhash != nil
+  end
+
+
+  @info_floats ["relayfee", "paytxfee", "difficulty", "balance"]
+  @info_integers ["walletversion", "version", "timeoffset", "protocolversion",
+   "keypoolsize", "keypoololdest", "connections", "blocks"]
+
+  test "getinfo", %{btc: name} do
+    Gold.getinfo!(name) |> Enum.each fn
+      ({key, value}) when key in @info_floats -> assert is_float(value)
+      ({key, value}) when key in @info_integers -> assert is_integer(value)
+      (other) -> other
+    end
   end
 
 end
