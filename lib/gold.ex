@@ -11,29 +11,6 @@ defmodule Gold do
     Supervisor.start_link([], opts)
   end
 
-  ##
-  # Client-side
-  ##
-  @doc """
-  Returns basic info about wallet and connection
-  """
-  def getinfo(name) do
-    case call(name, {:getinfo, []}) do
-      {:ok, info} -> 
-        {:ok, info}
-      otherwise -> 
-        otherwise
-    end
-  end
-
-  @doc """
-  Returns basic info about wallet and connection, raising an exeption on failure.
-  """
-  def getinfo!(name) do
-    {:ok, info} = getinfo(name)
-    info
-  end
-
   @doc """
   Returns wallet's total available balance, raising an exception on failure.
   """
@@ -261,19 +238,6 @@ defmodule Gold do
     blockhash
   end
 
-  @doc """
-  https://bitcoin.org/en/developer-reference#getinfo
-  """
-
-  def getinfo(name) do
-    call(name, {:getinfo, []})
-  end
-
-  def getinfo!(name) do
-    {:ok, info} = getinfo(name)
-    info
-  end
-
   @info_methods ~w(getblockchaininfo
                    getmempoolinfo
                    gettxoutsetinfo
@@ -285,7 +249,14 @@ defmodule Gold do
                    getwalletinfo)a
 
   Enum.each @info_methods, fn(method) ->
+    @doc """
+    https://bitcoin.org/en/developer-reference##{method}"
+    """
     def unquote(method)(name) do
+      call(name, {unquote(method), []})
+    end
+
+    def unquote(:"#{method}!")(name) do
       call(name, {unquote(method), []})
     end
   end
