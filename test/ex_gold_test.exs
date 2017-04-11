@@ -2,39 +2,39 @@ defmodule GoldTest do
   use Gold.DefaultCase
   doctest Gold
 
-  test "getbalance", %{btc: pid} do
-    assert Decimal.decimal?(Gold.getbalance!(pid))
+  test "getbalance", %{btc: name} do
+    assert Decimal.decimal?(Gold.getbalance!(name))
   end
 
-  test "getnewaddress", %{btc: pid} do
-    address = Gold.getnewaddress!(pid)
+  test "getnewaddress", %{btc: name} do
+    address = Gold.getnewaddress!(name)
 
     assert String.length(address) >= 26
     assert String.length(address) <= 34
   end
 
-  test "getnewaddress w/ account", %{btc: pid} do
-    address = Gold.getnewaddress!(pid, "foo_account")
+  test "getnewaddress w/ account", %{btc: name} do
+    address = Gold.getnewaddress!(name, "foo_account")
 
     assert String.length(address) >= 26
     assert String.length(address) <= 34
 
-    account = Gold.getaccount!(pid, address)
+    account = Gold.getaccount!(name, address)
 
     assert account == "foo_account"
   end
 
-  test "listtransactions", %{btc: pid} do
-    transactions = Gold.listtransactions!(pid)
+  test "listtransactions", %{btc: name} do
+    transactions = Gold.listtransactions!(name)
 
     assert is_list(transactions)
     assert Enum.all?(transactions, &Gold.Transaction.transaction?/1)
   end
 
-  test "sendtoaddress -> generate -> gettransaction", %{btc: pid} do
-    address = Gold.getnewaddress!(pid)
-    txid = Gold.sendtoaddress!(pid, address, Decimal.new("0.01"))
-    tx = Gold.gettransaction!(pid, txid)
+  test "sendtoaddress -> generate -> gettransaction", %{btc: name} do
+    address = Gold.getnewaddress!(name)
+    txid = Gold.sendtoaddress!(name, address, Decimal.new("0.01"))
+    tx = Gold.gettransaction!(name, txid)
 
     assert Gold.Transaction.transaction?(tx)
 
@@ -43,15 +43,15 @@ defmodule GoldTest do
     assert tx.blockhash == nil
 
     # Now we generate a few blocks and check again.
-    result = Gold.generate!(pid, 10)
+    result = Gold.generate!(name, 10)
 
-    tx = Gold.gettransaction!(pid, txid)
+    tx = Gold.gettransaction!(name, txid)
     assert Gold.Transaction.transaction?(tx)
     assert tx.blockhash != nil
   end
 
-  test "getinfo", %{btc: pid} do
-    IO.puts Gold.getinfo!(pid)
+  test "getinfo", %{btc: name} do
+    IO.puts Gold.getinfo!(name)
   end
 
 end
