@@ -52,12 +52,23 @@ defmodule GoldTest do
   @info_integers ["walletversion", "version", "timeoffset", "protocolversion",
    "keypoolsize", "keypoololdest", "connections", "blocks"]
 
-  test "getinfo", %{btc: name} do
-    Gold.getinfo!(name) |> Enum.each fn
-      ({key, value}) when key in @info_floats -> assert is_float(value)
-      ({key, value}) when key in @info_integers -> assert is_integer(value)
-      (other) -> other
-    end
-  end
+  @info_methods ~w(getinfo
+                   getblockchaininfo
+                   getmempoolinfo
+                   getmemoryinfo
+                   getmininginfo
+                   getnetworkinfo
+                   getpeerinfo
+                   getwalletinfo)a
 
+  Enum.each @info_methods, fn(method) ->
+      test method, %{btc: name} do
+        {:ok, info} = :erlang.apply(Gold, unquote(method), [name])
+        Enum.each info, fn
+          ({key, value}) when key in @info_floats -> assert is_float(value)
+          ({key, value}) when key in @info_integers -> assert is_integer(value)
+          (other) -> other
+        end
+      end
+  end
 end

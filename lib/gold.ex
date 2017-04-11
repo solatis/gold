@@ -274,6 +274,22 @@ defmodule Gold do
     info
   end
 
+  @info_methods ~w(getblockchaininfo
+                   getmempoolinfo
+                   gettxoutsetinfo
+                   getinfo
+                   getmemoryinfo
+                   getmininginfo
+                   getnetworkinfo
+                   getpeerinfo
+                   getwalletinfo)a
+
+  Enum.each @info_methods, fn(method) ->
+    def unquote(method)(name) do
+      call(name, {unquote(method), []})
+    end
+  end
+
   @doc """
   https://bitcoin.org/en/developer-reference#getrawtransaction
   """
