@@ -307,15 +307,9 @@ defmodule Gold do
       :undefined ->
         {:error, {:invalid_configuration, name}}
       config ->
-        handle_rpc_request(method, [], config)
-          |> handle_call
+        handle_rpc_request(method, params, config)
     end
   end
-
-  defp handle_call({:reply, reply, _config}) do
-    reply
-  end
-
 
   ##
   # Server-side
@@ -345,20 +339,18 @@ defmodule Gold do
     options = [timeout: 30000, recv_timeout: 20000]
 
     case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers, options) do
-      {:ok, %{status_code: 200, body: body}} ->
+      {:ok, %{status_code: 200 = code, body: body}} ->
         case Poison.decode!(body) do
-          %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
-          %{"error" => error} -> {:reply, {:error, error}, config}
+          %{"error" => nil, "result" => result} ->
+            {:ok, result}
+          %{"error" => error} ->
+            handle_error(code, error)
         end
-      {:ok, %{status_code: 401}} ->
-        {:reply, :forbidden, config}
-      {:ok, %{status_code: 404}} ->
-        {:reply, :notfound, config}
-      {:ok, %{status_code: 500}} ->
-        {:reply, :internal_server_error, config}
-      otherwise -> 
+      {:ok, %{status_code: code, body: body}} ->
+        handle_error(code, body)
+      otherwise ->
         Logger.error "Bitcoin RPC unexpected response: #{inspect otherwise}"
-        {:reply, otherwise, config}
+        {:error, otherwise}
     end
   end
 
@@ -367,8 +359,14 @@ defmodule Gold do
   defp handle_error(status_code, error) do
     status = @statuses[status_code]
     Logger.debug "Bitcoin RPC error status #{status}: #{error}"
-    %{"error" => %{"message" => message}} = Poison.decode!(error)
-    {:error, %{status: status, error: message}}
+    case Poison.decode(error) do
+      {:ok, %{"error" => %{"message" => message}}} ->
+        {:error, %{status: status, error: message}}
+      {:error, :invalid, _pos} ->
+        {:error, %{status: status, error: error}}
+      {:error, {:invalid, _token, _pos}} ->
+        {:error, %{status: status, error: error}}
+    end
   end
 
   @doc """

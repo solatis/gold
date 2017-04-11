@@ -47,6 +47,11 @@ defmodule GoldTest do
     assert tx.blockhash != nil
   end
 
+  test "error handling", %{btc: name} do
+    {:error, %{error: "JSON integer out of range", status: :internal_server_error}} =
+      Gold.generate(name, 0x80000000)
+  end
+
 
   @info_floats ["relayfee", "paytxfee", "difficulty", "balance"]
   @info_integers ["walletversion", "version", "timeoffset", "protocolversion",
