@@ -1,38 +1,63 @@
 defmodule Gold do
-  use GenServer
+  use Application
 
   require Logger
 
-  alias Gold.Config
   alias Gold.Transaction
 
-  import GenServer, only: [call: 2]
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+    opts = [strategy: :one_for_one, name: Gold.Supervisor]
+    Supervisor.start_link([], opts)
+  end
 
   ##
   # Client-side
   ##
   @doc """
-  Starts GenServer link with Gold server.
+  Returns basic info about wallet and connection
   """
-  def start_link(config), do: GenServer.start_link(__MODULE__, config)
-
-  @doc """
-  Returns server's total available balance.
-  """
-  def getbalance(name) do
-    case call(name, :getbalance) do
-      {:ok, balance} -> 
-        {:ok, btc_to_decimal(balance)}
+  def getinfo(name) do
+    case call(name, {:getinfo, []}) do
+      {:ok, info} -> 
+        {:ok, info}
       otherwise -> 
         otherwise
-    end        
+    end
   end
+
+  @doc """
+  Returns basic info about wallet and connection, raising an exeption on failure.
+  """
+  def getinfo!(name) do
+    {:ok, info} = getinfo(name)
+    info
+  end
+
+  @doc """
+  Returns wallet's total available balance, raising an exception on failure.
+  """
+  def getbalance(name) do
+    getbalance(name, nil)
+  end
+
+  def getbalance(name, nil) do
+    call(name, :getbalance) |> handle_getbalance
+  end
+  def getbalance(name, account) do
+    call(name, {:getbalance, [account]}) |> handle_getbalance
+  end
+
+  defp handle_getbalance({:ok, balance}), do:
+    {:ok, btc_to_decimal(balance)}
+  defp handle_getbalance(otherwise), do:
+    otherwise
 
   @doc """
   Returns server's total available balance, raising an exception on failure.
   """
-  def getbalance!(name) do
-    {:ok, balance} = getbalance(name)
+  def getbalance!(name, account \\ nil) do
+    {:ok, balance} = getbalance(name, account)
     balance
   end
 
@@ -212,19 +237,34 @@ defmodule Gold do
     result
   end
 
-  ##
-  # Server-side
-  ##
-  def handle_call(request, _from, config) 
-      when is_atom(request), do: handle_rpc_request(request, [], config)
-  def handle_call({request, params}, _from, config) 
-      when is_atom(request) and is_list(params), do: handle_rpc_request(request, params, config)
+  @doc """
+  Call generic RPC command
+  """
+  def call(name, method) when is_atom(method), do:
+    call(name, {method, []})
+  def call(name, {method, params}) when is_atom(method) do
+    case load_config(name) do
+      :undefined ->
+        {:error, {:invalid_configuration, name}}
+      config ->
+        handle_rpc_request(method, [], config)
+          |> handle_call
+    end
+  end
+
+  defp handle_call({:reply, reply, _config}) do
+    reply
+  end
 
   ##
   # Internal functions
   ##
   defp handle_rpc_request(method, params, config) when is_atom(method) do
-    %Config{hostname: hostname, port: port, user: user, password: password} = config
+    %{hostname: hostname, port: port, user: user, password: password} = config
+
+    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
+
+    params = PoisonedDecimal.poison_params(params)
 
     command = %{"jsonrpc": "2.0",
                 "method": to_string(method),
@@ -233,9 +273,9 @@ defmodule Gold do
 
     headers = ["Authorization": "Basic " <> Base.encode64(user <> ":" <> password)]
 
-    Logger.debug "Bitcoin RPC request for method: #{method}, params: #{inspect params}"
+    options = [timeout: 30000, recv_timeout: 20000]
 
-    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers) do
+    case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers, options) do
       {:ok, %{status_code: 200, body: body}} -> 
         case Poison.decode!(body) do
           %{"error" => nil, "result" => result} -> {:reply, {:ok, result}, config}
@@ -248,8 +288,18 @@ defmodule Gold do
       {:ok, %{status_code: 500}} ->
         {:reply, :internal_server_error, config}
       otherwise -> 
+        Logger.error "Bitcoin RPC unexpected response: #{inspect otherwise}"
         {:reply, otherwise, config}
     end
+  end
+
+  @statuses %{401 => :forbidden, 404 => :notfound, 500 => :internal_server_error}
+
+  defp handle_error(status_code, error) do
+    status = @statuses[status_code]
+    Logger.debug "Bitcoin RPC error status #{status}: #{error}"
+    %{"error" => %{"message" => message}} = Poison.decode!(error)
+    {:error, %{status: status, error: message}}
   end
 
   @doc """
@@ -264,7 +314,13 @@ defmodule Gold do
     # Now construct a decimal
     %Decimal{sign: if(satoshi < 0, do: -1, else: 1), coef: abs(satoshi), exp: -8}
   end
-
   def btc_to_decimal(nil), do: nil
-  
+
+  defp load_config(name) do
+    case :application.get_env(:gold, name) do
+      {:ok, config} -> Enum.into(config, %{})
+      :undefined -> :undefined
+    end
+  end
+
 end

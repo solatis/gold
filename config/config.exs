@@ -27,4 +27,33 @@ use Mix.Config
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+
+config :gold, :bitcoin, [
+  hostname: "localhost",
+  port: 8332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
+config :gold, :testnet3, [
+  hostname: "localhost",
+  port: 18332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
+config :gold, :litecoin, [
+  hostname: "localhost",
+  port: 9332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
+config :gold, :litecoin_testnet, [
+  hostname: "localhost",
+  port: 19332,
+  user: "bitcoinrpc",
+  password: "changeme"
+]
+
+import_config "#{Mix.env}.exs"

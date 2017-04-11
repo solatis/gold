@@ -1,10 +1,8 @@
-defimpl Poison.Encoder, for: Decimal do
+defimpl Poison.Encoder, for: PoisonedDecimal do
   @doc """
-  Implements custom Decimal encoder that allows serialization of Decimal objects
-  into JSON using Poison.
+  Hacky way of JSON encoding Decimals for bitcoind
   """
-
-  def encode(decimal, _options) do
-    Decimal.to_string(decimal)
+  def encode(term, _opts) do
+    << Decimal.to_string(term.decimal, :normal)::binary >>
   end
 end
