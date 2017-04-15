@@ -21,10 +21,39 @@ use Mix.Config
 #     config :logger, level: :info
 #
 
+# config :gold, :bitcoin, [
+#   hostname: "localhost",
+#   port: 18332,
+#   user: "bitcoinrpc",
+#   password: "bitcoinrpc"
+# ]
+
+# config :gold, :testnet3, [
+#   hostname: "localhost",
+#   port: 18332,
+#   user: "bitcoinrpc",
+#   password: "changeme"
+# ]
+
+# config :gold, :litecoin, [
+#   hostname: "localhost",
+#   port: 9332,
+#   user: "bitcoinrpc",
+#   password: "changeme"
+# ]
+
+# config :gold, :litecoin_testnet, [
+#   hostname: "localhost",
+#   port: 19332,
+#   user: "bitcoinrpc",
+#   password: "changeme"
+# ]
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+
+import_config "#{Mix.env}.exs"
