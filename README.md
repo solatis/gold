@@ -12,7 +12,7 @@ Add Gold as a dependency in your `mix.exs` file.
 
 ```elixir
 def deps do
-  [ { :gold, "~> 0.13" } ]
+  [ { :gold, "~> 0.16" } ]
 end
 ```
 
