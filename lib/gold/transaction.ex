@@ -1,11 +1,14 @@
 defmodule Gold.Transaction do
+  @moduledoc """
+  Struct which holds all transaction data
+  """
 
-  defstruct [:account, 
-             :address, 
+  defstruct [:account,
+             :address,
              :category,
-             :amount, 
-             :vout, 
-             :fee, 
+             :amount,
+             :vout,
+             :fee,
              :confirmations,
              :blockhash,
              :blockindex,
@@ -18,9 +21,9 @@ defmodule Gold.Transaction do
   @doc """
   Creates Transaction struct from JSON transaction object.
   """
-  def from_json(tx) do    
+  def from_json(tx) do
     %Gold.Transaction{
-      account:       Map.get(tx, "account", nil), 
+      account:       Map.get(tx, "account", nil),
       address:       Map.get(tx, "address", nil),
       category:      case Map.get(tx, "category", nil) do
                        nil -> nil

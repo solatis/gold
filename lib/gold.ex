@@ -1,4 +1,9 @@
 defmodule Gold do
+  @moduledoc """
+  Opinionated interface to Bitcoin core JSON-RPC API.
+  Currently in MVP mode: architecture is ready and stable, doesn't fully implement
+  all of the RPC commands yet.
+  """
   use Application
 
   require Logger
