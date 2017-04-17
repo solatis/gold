@@ -34,7 +34,7 @@ defmodule Gold.Mixfile do
   end
 
   defp package do
-    [maintainers: ["Leon Mergen"],
+    [maintainers: ["Leon Mergen", "Bartosz Kalinowski"],
      licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/solatis/gold"}]
   end
