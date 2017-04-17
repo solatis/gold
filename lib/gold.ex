@@ -173,6 +173,42 @@ defmodule Gold do
     blockhash
   end
 
+  @doc """
+  https://bitcoin.org/en/developer-reference#getrawtransaction
+  """
+  def getrawtransaction(name, txid, verbose \\ 1) do
+    call(name, {:getrawtransaction, [txid, verbose]})
+  end
+
+  def getrawtransaction!(name, txid, verbose \\ 1) do
+    {:ok, tx} = getrawtransaction(name, txid, verbose)
+    tx
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#getblockcount
+  """
+  def getblockcount(name) do
+    call(name, {:getblockcount, []})
+  end
+
+  def getblockcount!(name) do
+    {:ok, count} = getblockcount(name)
+    count
+  end
+
+  @doc """
+  https://bitcoin.org/en/developer-reference#gettxout
+  """
+  def gettxout(name, txid, n \\ 1) do
+    call(name, {:gettxout, [txid, n]})
+  end
+
+  def gettxout!(name, txid, n \\ 1) do
+    {:ok, txout} = gettxout(name, txid, n)
+    txout
+  end
+
   @info_methods ~w(getblockchaininfo
                    getmempoolinfo
                    gettxoutsetinfo
@@ -201,42 +237,6 @@ defmodule Gold do
   end
 
   @doc """
-  https://bitcoin.org/en/developer-reference#getrawtransaction
-  """
-  def getrawtrasaction(name, txid, verbose \\ 1) do
-    call(name, {:getrawtransaction, [txid, verbose]})
-  end
-
-  def getrawtransaction!(name, txid, verbose \\ 1) do
-    {:ok, tx} = getrawtrasaction(name, txid, verbose)
-    tx
-  end
-
-  @doc """
-  https://bitcoin.org/en/developer-reference#getblockcount
-  """
-  def getblockcount(name) do
-    call(name, {:getblockcount, []})
-  end
-
-  def getblockcount!(name) do
-    {:ok, count} = getblockcount(name)
-    count
-  end
-
-  @doc """
-  https://bitcoin.org/en/developer-reference#gettxout
-  """
-  def gettxout(name, txid, n \\ 1) do
-    call(name, {:gettxout, [txid, n]})
-  end
-
-  def gettxout!(name, txid, n \\ 1) do
-    {:ok, txout} = gettxout(name, txid, n)
-    txout
-  end
-
-  @doc """
   Call generic RPC command
   """
   def call(name, method) when is_atom(method), do:
@@ -249,14 +249,6 @@ defmodule Gold do
         handle_rpc_request(method, params, config)
     end
   end
-
-  ##
-  # Server-side
-  ##
-  def handle_call(request, _from, config)
-      when is_atom(request), do: handle_rpc_request(request, [], config)
-  def handle_call({request, params}, _from, config)
-      when is_atom(request) and is_list(params), do: handle_rpc_request(request, params, config)
 
   ##
   # Internal functions
@@ -278,18 +270,11 @@ defmodule Gold do
     options = [timeout: 30000, recv_timeout: 20000]
 
     case HTTPoison.post("http://" <> hostname <> ":" <> to_string(port) <> "/", Poison.encode!(command), headers, options) do
-      {:ok, %{status_code: 200 = code, body: body}} ->
-        case Poison.decode!(body) do
-          %{"error" => nil, "result" => result} ->
-            {:ok, result}
-          %{"error" => error} ->
-            handle_error(code, error)
-        end
+      {:ok, %{status_code: 200, body: body}} ->
+        %{"error" => nil, "result" => result} = Poison.decode!(body)
+        {:ok, result}
       {:ok, %{status_code: code, body: body}} ->
         handle_error(code, body)
-      otherwise ->
-        Logger.error "Bitcoin RPC unexpected response: #{inspect otherwise}"
-        {:error, otherwise}
     end
   end
 

@@ -68,7 +68,7 @@ defmodule GoldTest do
 
   test "sendtoaddress -> generate -> gettransaction", %{btc: name} do
     # Generate blocks so we have some cash
-    Gold.generate!(name, 5)
+    Gold.generate!(name, 101)
     address = Gold.getnewaddress!(name)
     txid = Gold.sendtoaddress!(name, address, Decimal.new("0.01"))
     tx = Gold.gettransaction!(name, txid)
@@ -116,11 +116,33 @@ defmodule GoldTest do
     assert Gold.getblockhash(name, 100000) == {:error, %{error: "Block height out of range", status: :internal_server_error}}
   end
 
-  test "error handling", %{btc: name} do
-    {:error, %{error: "JSON integer out of range", status: :internal_server_error}} =
-      Gold.generate(name, 0x80000000)
+  test "getrawtransaction!", %{btc: name} do
+    [hash] = Gold.generate!(name, 1)
+    block = Gold.getblock!(name, hash)
+    [tx | _] = block["tx"]
+    rawtransaction = Gold.getrawtransaction!(name, tx)
+    assert rawtransaction["txid"] == tx
+    assert rawtransaction["confirmations"] == 1
+    assert rawtransaction["vin"]
+    assert rawtransaction["vout"]
   end
 
+  test "getrawtransaction with invalid tx", %{btc: name} do
+    assert Gold.getrawtransaction(name, "44a0ae95760ae0c93f76086f951c73327737b045c119c3eae56f56c273dc9921") ==
+      {:error, %{error: "No such mempool transaction. Use -txindex to enable blockchain transaction queries. Use gettransaction for wallet transactions.",
+      status: :internal_server_error}}
+  end
+
+  test "getblockcount!", %{btc: name} do
+    assert Gold.getblockcount!(name) > 0
+  end
+
+  test "gettxout!", %{btc: name} do
+    [hash] = Gold.generate!(name, 1)
+    block = Gold.getblock!(name, hash)
+    [tx | _] = block["tx"]
+    assert Gold.gettxout!(name, tx) == nil
+  end
 
   @info_floats ["relayfee", "paytxfee", "difficulty", "balance"]
   @info_integers ["walletversion", "version", "timeoffset", "protocolversion",
@@ -157,4 +179,10 @@ defmodule GoldTest do
       end
     end
   end
+
+  test "error handling", %{btc: name} do
+    {:error, %{error: "JSON integer out of range", status: :internal_server_error}} =
+      Gold.generate(name, 0x80000000)
+  end
+
 end
