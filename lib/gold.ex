@@ -14,10 +14,7 @@ defmodule Gold do
   @doc """
   Returns wallet's total available balance, raising an exception on failure.
   """
-  def getbalance(name) do
-    getbalance(name, nil)
-  end
-
+  def getbalance(name, account \\ nil)
   def getbalance(name, nil) do
     call(name, :getbalance) |> handle_getbalance
   end
@@ -41,22 +38,12 @@ defmodule Gold do
   @doc """
   Returns a new bitcoin address for receiving payments.
   """
-  def getnewaddress(name), do: getnewaddress(name, "")
+  def getnewaddress(name, account \\ ""), do: call(name, {:getnewaddress, [account]})
 
   @doc """
   Returns a new bitcoin address for receiving payments, raising an exception on failure.
   """
-  def getnewaddress!(name), do: getnewaddress!(name, "")
-
-  @doc """
-  Returns a new bitcoin address for receiving payments.
-  """
-  def getnewaddress(name, account), do: call(name, {:getnewaddress, [account]})
-
-  @doc """
-  Returns a new bitcoin address for receiving payments, raising an exception on failure.
-  """
-  def getnewaddress!(name, account) do
+  def getnewaddress!(name, account \\ "") do
     {:ok, address} = getnewaddress(name, account)
     address
   end
@@ -77,37 +64,7 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet.
   """
-  def listtransactions(name), do: listtransactions(name, "*")
-
-  @doc """
-  Returns most recent transactions in wallet, raising an exception on failure.
-  """
-  def listtransactions!(name), do: listtransactions!(name, "*")
-
-  @doc """
-  Returns most recent transactions in wallet.
-  """
-  def listtransactions(name, account), do: listtransactions(name, account, 10)
-
-  @doc """
-  Returns most recent transactions in wallet, raising an exception on failure.
-  """
-  def listtransactions!(name, account), do: listtransactions!(name, account, 10)
-
-  @doc """
-  Returns most recent transactions in wallet.
-  """
-  def listtransactions(name, account, limit), do: listtransactions(name, account, limit, 0)
-
-  @doc """
-  Returns most recent transactions in wallet, raising an exception on failure.
-  """
-  def listtransactions!(name, account, limit), do: listtransactions!(name, account, limit, 0)
-
-  @doc """
-  Returns most recent transactions in wallet.
-  """
-  def listtransactions(name, account, limit, offset) do
+  def listtransactions(name, account \\ "*", limit \\ 10, offset \\ 0) do
     case call(name, {:listtransactions, [account, limit, offset]}) do
       {:ok, transactions} ->
         {:ok, Enum.map(transactions, &Transaction.from_json/1)}
@@ -119,7 +76,7 @@ defmodule Gold do
   @doc """
   Returns most recent transactions in wallet, raising an exception on failure.
   """
-  def listtransactions!(name, account, limit, offset) do
+  def listtransactions!(name, account \\ "*", limit \\ 10, offset \\ 0) do
     {:ok, transactions} = listtransactions(name, account, limit, offset)
     transactions
   end
@@ -163,29 +120,7 @@ defmodule Gold do
   @doc """
   Add an address or pubkey script to the wallet without the associated private key.
   """
-  def importaddress(name, address), do: importaddress(name, address, "")
-
-  @doc """
-  Add an address or pubkey script to the wallet without the associated private key,
-  raising an exception on failure.
-  """
-  def importaddress!(name, address), do: importaddress!(name, address, "")
-
-  @doc """
-  Add an address or pubkey script to the wallet without the associated private key.
-  """
-  def importaddress(name, address, account), do: importaddress(name, address, account, true)
-
-  @doc """
-  Add an address or pubkey script to the wallet without the associated private key,
-  raising an exception on failure.
-  """
-  def importaddress!(name, address, account), do: importaddress!(name, address, account, true)
-
-  @doc """
-  Add an address or pubkey script to the wallet without the associated private key.
-  """
-  def importaddress(name, address, account, rescan) do
+  def importaddress(name, address, account \\ "", rescan \\ true) do
     call(name, {:importaddress, [address, account, rescan]})
   end
 
@@ -193,7 +128,7 @@ defmodule Gold do
   Add an address or pubkey script to the wallet without the associated private key,
   raising an exception on failure.
   """
-  def importaddress!(name, address, account, rescan) do
+  def importaddress!(name, address, account \\ "", rescan \\ true) do
     {:ok, _} = importaddress(name, address, account, rescan)
     :ok
   end
@@ -256,8 +191,12 @@ defmodule Gold do
       call(name, {unquote(method), []})
     end
 
+    @doc """
+    https://bitcoin.org/en/developer-reference##{method}"
+    """
     def unquote(:"#{method}!")(name) do
-      call(name, {unquote(method), []})
+      {:ok, info} = call(name, {unquote(method), []})
+      info
     end
   end
 
