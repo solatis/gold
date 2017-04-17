@@ -1,6 +1,7 @@
 # Gold
 
 [![Build Status](https://travis-ci.org/kelostrada/gold.svg?branch=master)](https://travis-ci.org/kelostrada/gold)
+[![Coverage Status](https://coveralls.io/repos/github/kelostrada/gold/badge.svg?branch=master)](https://coveralls.io/github/kelostrada/gold?branch=master)
 
 Opinionated interface to Bitcoin core JSON-RPC API. Currently in MVP mode: architecture is ready and stable, doesn't fully implement all of the RPC commands yet, although this would be trivial to do. Open an issue (or better yet, create a pull request) if you want to see more functionality added.
 
