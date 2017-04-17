@@ -19,6 +19,7 @@ before_script:
 script:
   - sleep 15
   - mix test
+  - mix coveralls.travis
 notifications:
   recipients:
     - kelostrada@gmail.com

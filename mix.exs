@@ -10,7 +10,9 @@ defmodule Gold.Mixfile do
      deps: deps(),
      package: package(),
      description: description(),
-     consolidate_protocols: Mix.env != :test
+     consolidate_protocols: Mix.env != :test,
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.travis": :test, "coveralls.html": :test]
     ]
   end
 
@@ -23,7 +25,8 @@ defmodule Gold.Mixfile do
      {:httpoison, "~> 0.7"},
      {:poison, "~> 3.0 or ~> 2.0"},
      {:earmark,   ">= 0.0.0", only: :dev},
-     {:ex_doc,    ">= 0.0.0", only: :dev}
+     {:ex_doc,    ">= 0.0.0", only: :dev},
+     {:excoveralls, "~> 0.6", only: :test}
     ]
   end
 
