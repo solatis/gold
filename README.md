@@ -12,7 +12,7 @@ Add Gold as a dependency in your `mix.exs` file.
 
 ```elixir
 def deps do
-  [ { :gold, "~> 0.10" } ]
+  [ { :gold, "~> 0.13" } ]
 end
 ```
 
@@ -42,6 +42,14 @@ iex> Gold.listtransactions!(:my_node)
   txid: "6c173c5b90bc0c565e15d0144d57e81ec9ce95aac86f0e77c354d7acf1fbf68b",
   vout: 0}]
 ```
+
+## Testing
+
+You need bitcoind in regtest mode to run tests. To get it go to: https://bitcoin.org/en/download.
+
+After you are done installing you need to copy `bitcoin.conf` file to you `.bitcoin` directory (or just run bitcoind with proper parameters). You also have to start it with args: `-regtest -daemon`.
+
+When you are done setting everything up you can run tests with `mix test`
 
 ## Features
 

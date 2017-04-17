@@ -3,13 +3,13 @@ defmodule Gold.Mixfile do
 
   def project do
     [app: :gold,
-     version: "0.15.0",
+     version: "0.13.0",
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps,
-     package: package,
-     description: description,
+     deps: deps(),
+     package: package(),
+     description: description(),
      consolidate_protocols: Mix.env != :test
     ]
   end
