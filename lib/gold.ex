@@ -181,6 +181,26 @@ defmodule Gold do
   end
 
   @doc """
+  Returns all transactions affecting the wallet which have occurred since a particular block
+  """
+  def listsinceblock(pid, header_hash, target_confirmations, watchonly) do
+    case GenServer.call(pid, {:listsinceblock, [header_hash, target_confirmations, watchonly]}) do
+      {:ok, %{"transactions" => transactions, "lastblock" => lastblock} = _result} ->
+        {:ok, %{transactions: Enum.map(transactions, &Transaction.from_json/1), lastblock: lastblock}}
+      otherwise ->
+        otherwise
+    end        
+  end
+
+  @doc """
+  Returns all transactions affecting the wallet which have occurred since a particular block
+  """
+  def listsinceblock!(pid, header_hash, target_confirmations, watchonly) do
+    {:ok, result} = listsinceblock(pid, header_hash, target_confirmations, watchonly)
+    result
+  end
+
+  @doc """
   Get detailed information about in-wallet transaction.
   """
   def gettransaction(pid, txid) do
