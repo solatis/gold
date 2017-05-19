@@ -201,6 +201,21 @@ defmodule Gold do
   end
 
   @doc """
+  the header hash of a block at the given height in the local best block chain
+  """
+  def getblockhash(pid, block_height) do
+    GenServer.call(pid, {:getblockhash, [block_height]})
+  end
+
+  @doc """
+  the header hash of a block at the given height in the local best block chain
+  """
+  def getblockhash!(pid, block_height) do
+    {:ok, result} = getblockhash(pid, block_height)
+    result
+  end
+
+  @doc """
   Get detailed information about in-wallet transaction.
   """
   def gettransaction(pid, txid) do
