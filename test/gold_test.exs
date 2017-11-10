@@ -2,7 +2,7 @@ defmodule GoldTest do
   use Gold.DefaultCase
   doctest Gold
 
-  @rpc_misc_error_error_code -5
+  @rpc_misc_error_error_code -1
   @rpc_invalid_address_or_key_error_code -5
   @rpc_invalid_parameter_error_code -8
 
