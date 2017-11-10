@@ -289,12 +289,14 @@ defmodule Gold do
     status = @statuses[status_code]
     Logger.debug "Bitcoin RPC error status #{status}: #{error}"
     case Poison.decode(error) do
+      {:ok, %{"error" => %{"message" => message, "code" => code}}} ->
+        {:error, %{status: status, error: message, code: code}}
       {:ok, %{"error" => %{"message" => message}}} ->
-        {:error, %{status: status, error: message}}
+        {:error, %{status: status, error: message, code: nil}}
       {:error, :invalid, _pos} ->
-        {:error, %{status: status, error: error}}
+        {:error, %{status: status, error: error, code: nil}}
       {:error, {:invalid, _token, _pos}} ->
-        {:error, %{status: status, error: error}}
+        {:error, %{status: status, error: error, code: nil}}
     end
   end
 
