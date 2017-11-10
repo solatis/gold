@@ -2,6 +2,10 @@ defmodule GoldTest do
   use Gold.DefaultCase
   doctest Gold
 
+  @rpc_misc_error_error_code -5
+  @rpc_invalid_address_or_key_error_code -5
+  @rpc_invalid_parameter_error_code = -8
+
   test "supervisor starts" do
     {:ok, pid} = Gold.start(nil, [])
     assert pid
@@ -41,7 +45,7 @@ defmodule GoldTest do
   end
 
   test "getaccount with invalid bitcoin address", %{btc: name} do
-    assert Gold.getaccount(name, "asdfasdfasdf") == {:error, %{error: "Invalid Bitcoin address", status: :internal_server_error}}
+    assert Gold.getaccount(name, "asdfasdfasdf") == {:error, %{error: "Invalid Bitcoin address", status: :internal_server_error, code: @rpc_invalid_address_or_key_error_code}}
   end
 
   test "getaccount! raises with invalid bitcoin address", %{btc: name} do
@@ -56,14 +60,14 @@ defmodule GoldTest do
     assert Enum.all?(transactions, &Gold.Transaction.transaction?/1)
   end
 
-  test "listransactions with invalid input", %{btc: name} do
+  test "listtransactions with invalid input", %{btc: name} do
     assert Gold.listtransactions(name, "*", "AAA") == {:error,
-      %{error: "JSON value is not an integer as expected", status: :internal_server_error}}
+      %{error: "JSON value is not an integer as expected", status: :internal_server_error, code: @rpc_misc_error_error_code}}
   end
 
   test "gettransaction with invalid input", %{btc: name} do
     assert Gold.gettransaction(name, "fsadfasdfasd") == {:error,
-      %{error: "Invalid or non-wallet transaction id", status: :internal_server_error}}
+      %{error: "Invalid or non-wallet transaction id", status: :internal_server_error, code: @rpc_invalid_address_or_key_error_code}}
   end
 
   test "sendtoaddress -> generate -> gettransaction", %{btc: name} do
@@ -92,7 +96,7 @@ defmodule GoldTest do
 
   test "importaddress with invalid input", %{btc: name} do
     assert Gold.importaddress(name, "asdasda") == {:error,
-      %{error: "Invalid Bitcoin address or script", status: :internal_server_error}}
+      %{error: "Invalid Bitcoin address or script", status: :internal_server_error, code: @rpc_invalid_address_or_key_error_code}}
   end
 
   test "getblock!", %{btc: name} do
@@ -103,7 +107,7 @@ defmodule GoldTest do
   end
 
   test "getblock with invalid hash", %{btc: name} do
-    assert Gold.getblock(name, "asdasd") == {:error, %{error: "Block not found", status: :internal_server_error}}
+    assert Gold.getblock(name, "asdasd") == {:error, %{error: "Block not found", status: :internal_server_error, code: @rpc_invalid_address_or_key_error_code}}
   end
 
   test "getblockhash!", %{btc: name} do
@@ -113,7 +117,7 @@ defmodule GoldTest do
   end
 
   test "getblockhash with invalid height", %{btc: name} do
-    assert Gold.getblockhash(name, 100000) == {:error, %{error: "Block height out of range", status: :internal_server_error}}
+    assert Gold.getblockhash(name, 100000) == {:error, %{error: "Block height out of range", status: :internal_server_error, code: @rpc_invalid_parameter_error_code}}
   end
 
   test "getrawtransaction!", %{btc: name} do
@@ -130,7 +134,7 @@ defmodule GoldTest do
   test "getrawtransaction with invalid tx", %{btc: name} do
     assert Gold.getrawtransaction(name, "44a0ae95760ae0c93f76086f951c73327737b045c119c3eae56f56c273dc9921") ==
       {:error, %{error: "No such mempool transaction. Use -txindex to enable blockchain transaction queries. Use gettransaction for wallet transactions.",
-      status: :internal_server_error}}
+      status: :internal_server_error, code: @rpc_invalid_address_or_key_error_code}}
   end
 
   test "getblockcount!", %{btc: name} do
