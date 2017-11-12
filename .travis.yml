@@ -3,6 +3,9 @@ elixir:
   - 1.4.2
 otp_release:
   - 19.1
+cache:
+  directories:
+  - deps
 
 before_install:
   - wget https://bitcoin.org/bin/bitcoin-core-0.14.0/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz  && tar -xzvf bitcoin-0.14.0-x86_64-linux-gnu.tar.gz -C /home/travis
