@@ -65,13 +65,9 @@ defmodule GoldTest do
       %{error: "JSON value is not an integer as expected", status: :internal_server_error, code: @rpc_misc_error_error_code}}
   end
 
-  describe "listsinceblock/4" do
-
-    test "lists transactions since block", %{btc: name} do
-      [hash] = Gold.generate!(name, 1)
-      assert %{"lastblock" => hash, "transactions" => []} == Gold.listsinceblock!(name, hash, 1, false)
-    end
-
+  test "listsinceblock/4 lists transactions since block", %{btc: name} do
+    [hash] = Gold.generate!(name, 1)
+    assert %{"lastblock" => hash, "transactions" => []} == Gold.listsinceblock!(name, hash, 1, false)
   end
 
   test "gettransaction with invalid input", %{btc: name} do
