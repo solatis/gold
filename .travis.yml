@@ -6,9 +6,10 @@ otp_release:
 cache:
   directories:
   - deps
+  - /home/travis/download
 
 before_install:
-  - wget https://bitcoin.org/bin/bitcoin-core-0.14.0/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz  && tar -xzvf bitcoin-0.14.0-x86_64-linux-gnu.tar.gz -C /home/travis
+  - wget -P /home/travis/download/ https://bitcoin.org/bin/bitcoin-core-0.14.0/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz && tar -xzvf /home/travis/download/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz -C /home/travis
 
 install:
   - mix local.hex --force

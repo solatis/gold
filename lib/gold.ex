@@ -92,7 +92,7 @@ defmodule Gold do
   def listsinceblock(name, header_hash, target_confirmations, watchonly) do
     case call(name, {:listsinceblock, [header_hash, target_confirmations, watchonly]}) do
       {:ok, %{"transactions" => transactions, "lastblock" => lastblock} = _result} ->
-        {:ok, %{transactions: Enum.map(transactions, &Transaction.from_json/1), lastblock: lastblock}}
+        {:ok, %{"transactions" => Enum.map(transactions, &Transaction.from_json/1), "lastblock" => lastblock}}
       otherwise ->
         otherwise
     end

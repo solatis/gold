@@ -69,7 +69,7 @@ defmodule GoldTest do
 
     test "lists transactions since block", %{btc: name} do
       [hash] = Gold.generate!(name, 1)
-      assert IO.inspect Gold.listsinceblock!(name, hash, 1, false)
+      assert %{"lastblock" => hash, "transactions" => []} == Gold.listsinceblock!(name, hash, 1, false)
     end
 
   end
