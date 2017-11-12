@@ -9,7 +9,7 @@ cache:
   - /home/travis/download
 
 before_install:
-  - wget -P /home/travis/download/ https://bitcoin.org/bin/bitcoin-core-0.14.0/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz && tar -xzvf /home/travis/download/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz -C /home/travis
+  - wget -P /home/travis/download/ -nc https://bitcoin.org/bin/bitcoin-core-0.14.0/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz && tar -xzvf /home/travis/download/bitcoin-0.14.0-x86_64-linux-gnu.tar.gz -C /home/travis
 
 install:
   - mix local.hex --force
