@@ -65,6 +65,15 @@ defmodule GoldTest do
       %{error: "JSON value is not an integer as expected", status: :internal_server_error, code: @rpc_misc_error_error_code}}
   end
 
+  describe "listsinceblock/4" do
+
+    test "lists transactions since block", %{btc: name} do
+      [hash] = Gold.generate!(name, 1)
+      assert IO.inspect Gold.listsinceblock!(name, hash, 1, false)
+    end
+
+  end
+
   test "gettransaction with invalid input", %{btc: name} do
     assert Gold.gettransaction(name, "fsadfasdfasd") == {:error,
       %{error: "Invalid or non-wallet transaction id", status: :internal_server_error, code: @rpc_invalid_address_or_key_error_code}}
