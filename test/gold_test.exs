@@ -147,6 +147,7 @@ defmodule GoldTest do
   end
 
   test "getblockcount!", %{btc: name} do
+    Gold.generate!(name, 1)
     assert Gold.getblockcount!(name) > 0
   end
 
