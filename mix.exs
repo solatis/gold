@@ -3,7 +3,7 @@ defmodule Gold.Mixfile do
 
   def project do
     [app: :gold,
-     version: "0.16.2",
+     version: "0.16.3",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
