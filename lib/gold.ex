@@ -287,10 +287,10 @@ defmodule Gold do
 
     params = PoisonedDecimal.poison_params(params)
 
-    command = %{"jsonrpc": "2.0",
-                "method": to_string(method),
-                "params": params,
-                "id": 1}
+    command = %{jsonrpc: "2.0",
+                method: to_string(method),
+                params: params,
+                id: 1}
 
     headers = ["Authorization": "Basic " <> Base.encode64(user <> ":" <> password)]
 
