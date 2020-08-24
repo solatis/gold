@@ -12,7 +12,7 @@ defmodule Gold.Mixfile do
      description: description(),
      consolidate_protocols: Mix.env != :test,
      test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: ["coveralls": :test, "coveralls.travis": :test, "coveralls.html": :test]
+     preferred_cli_env: [coveralls: :test, "coveralls.travis": :test, "coveralls.html": :test]
     ]
   end
 
