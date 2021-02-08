@@ -21,7 +21,7 @@ defmodule Gold.Mixfile do
   end
 
   defp deps do
-    [{:decimal,   "~> 1.1"},
+    [{:decimal,   "~> 1.1 or ~> 2.0"},
      {:httpoison, "~> 0.7"},
      {:poison, "~> 3.0 or ~> 2.0"},
      {:earmark,   ">= 0.0.0", only: :dev},
