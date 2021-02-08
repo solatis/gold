@@ -175,14 +175,15 @@ defmodule Gold do
   end
 
   @doc """
-  https://bitcoin.org/en/developer-reference#getblock
+  https://developer.bitcoin.org/reference/rpc/getblock.html
   """
-  def getblock(name, hash) do
-    call(name, {:getblock, [hash]})
+  def getblock(name, hash, verbosity \\ nil) do
+    params = if verbosity, do: [hash, verbosity], else: [hash]
+    call(name, {:getblock, params})
   end
 
-  def getblock!(name, hash) do
-    {:ok, block} = getblock(name, hash)
+  def getblock!(name, hash, verbosity \\ nil) do
+    {:ok, block} = getblock(name, hash, verbosity)
     block
   end
 
